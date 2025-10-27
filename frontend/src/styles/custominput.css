@@ -1,0 +1,117 @@
+.custom-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  width: 100%;
+  margin-bottom: 15px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+
+.input-icon {
+  background: linear-gradient(135deg, #104c44, #1c6f63);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-right: 10px;
+  padding-right: 10px;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+}
+
+.input-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-body label {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 2px;
+}
+
+/* Text inputs */
+.input-body input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #104c44;
+  background: transparent;
+}
+
+.input-body input::placeholder {
+  color: #bbb;
+}
+
+/* Dropdowns (selects) */
+.input-body select {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #104c44;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-right: 20px; /* room for arrow */
+}
+
+/* Optional: custom dropdown arrow */
+.input-body select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23104c44' height='10' width='10' xmlns='http://www.w3.org/2000/svg'><polygon points='0,0 10,0 5,6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 10px;
+}
+
+/* Multi-select styling */
+.input-body select[multiple] {
+  height: auto;
+  min-height: 70px;
+  padding-right: 0;
+  background-image: none;
+  cursor: default;
+}
+
+.input-body select option {
+  color: #104c44;
+}
+
+/* ---- DROPDOWN STYLING ---- */
+.input-body select {
+  border: none;
+  outline: none;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #104c44;
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: linear-gradient(135deg, #104c44, #1c6f63),
+    url("data:image/svg+xml;utf8,<svg fill='%23104c44' height='12' width='12' xmlns='http://www.w3.org/2000/svg'><polygon points='0,0 12,0 6,6'/></svg>");
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 14px center, right 14px center;
+  background-size: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+
+
+
+
+/* Keep placeholder dimmed */
+.input-body select option[value=""] {
+  color: #bbb;
+}

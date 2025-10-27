@@ -2,6 +2,7 @@ import React from "react";
 import "../styles/landing.css";
 
 import { useNavigate } from "react-router-dom";
+import Button from "./button";
 
 
 export default function Navbars() {
@@ -31,7 +32,7 @@ export default function Navbars() {
           Contact
         </li>
       </ul>
-      <button className="btn-primary"  onClick={signIn}>Get Started</button>
+     <Button type="primary" className="nav-btn" onClick={signIn}>Get Started</Button>
     </nav>
   );
 }

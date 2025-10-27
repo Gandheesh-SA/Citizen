@@ -1,0 +1,111 @@
+/* GLOBAL */
+* {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  background-color: #ffffff; /* Premium white */
+  color: #1e293b; /* Dark text for contrast */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* space items evenly */
+  align-items: center; /* center logo and nav horizontally */
+  padding: 30px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  /* Edge effect - subtle shadow for depth */
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* LOGO / TITLE */
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #104c44;
+  margin-bottom: 40px; /* space between logo and nav links */
+}
+
+/* NAVIGATION */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%; /* make nav take full width for proper centering */
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center; /* center nav items horizontally */
+}
+
+.nav-item {
+  color: #475569; /* soft dark grey */
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 5px;
+  width: 90%; /* nav items centered with width */
+  justify-content: center; /* center text and icon */
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background-color: #104c44; /* hover background */
+  color: white; /* hover text color */
+  transform: translateX(5px); /* slight slide effect */
+}
+
+.icon {
+  font-size: 1.3rem;
+  color: #475569;
+  transition: color 0.3s;
+}
+
+.nav-item:hover .icon {
+  color: #ffffff; /* icon matches text color on hover */
+}
+
+/* SIDEBAR FOOTER */
+.sidebar-footer {
+  font-size: 0.85rem;
+  text-align: center;
+  color: #94a3b8;
+  margin-top: 20px;
+}
+
+/* RESPONSIVE (optional) */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px; /* collapse sidebar for smaller screens */
+    padding: 20px 10px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+
+  .nav-item {
+    font-size: 0.9rem;
+    padding: 10px;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .icon {
+    font-size: 1.2rem;
+  }
+}

@@ -1,0 +1,178 @@
+@import url('./variable.css');
+
+.trainer-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* LEFT PANEL */
+.trainer-left {
+  background-image: var(--my-gradient);
+  color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+}
+
+.logo {
+  font-size: 28px;
+  margin-bottom: 60px;
+}
+
+.why-section h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.why-section p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
+/* RIGHT PANEL */
+.trainer-right {
+  flex: 2;
+  background-color: #f9f9f9;
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* prevent forced vertical centering */
+  overflow-y: auto;            /* ✅ enables scroll */
+  max-height: 100vh;           /* ✅ prevents overflow outside viewport */
+}
+
+.trainer-right h2 {
+  font-size: 28px;          
+  font-weight: 700;         
+  color: #1c6f63;          
+  text-align: center;       /* center align */
+  letter-spacing: 2px;      /* spacing between letters */
+  margin-bottom: 40px;
+}
+
+.trainer-right p {
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.trainer-form {
+  width: 100%;
+  margin-bottom: 40px; 
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+textarea {
+  width: 100%;
+  margin-top: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  resize: none;
+  height: 120px;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #005b5f;
+}
+
+.training-spec-label {
+  display: block;
+  margin-top: 24px;
+  font-weight: 500;
+}
+
+.submit-container {
+  margin-top: 24px;
+}
+
+.terms {
+  font-size: 13px;
+  margin-top: 16px;
+  color: #555;
+}
+
+.terms a {
+  color: #005b5f;
+  text-decoration: none;
+}
+
+/* Volunteering Section Styling */
+.volunteering-section {
+  margin-top: 32px;
+  grid-column: 1 / -1;
+}
+
+select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+  width: 100%;
+}
+
+/* Volunteering Options */
+.multi-check-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-checkbox:hover {
+  border-color: #1c6f63;
+  box-shadow: 0 0 5px rgba(28, 111, 99, 0.2);
+}
+
+/* Active state when selected */
+.custom-checkbox.active {
+  background-color: #1c6f63;
+  color: #fff;
+  border-color: #1c6f63;
+}
+
+.custom-checkbox.active .checkbox-icon {
+  color: #fff;
+}
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .trainer-right {
+    padding: 40px 20px;
+  }
+
+  .multi-check-container {
+    grid-template-columns: 1fr;
+  }
+}

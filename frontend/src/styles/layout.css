@@ -1,0 +1,47 @@
+/* === Layout Container === */
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden; /* Prevent double scrollbars */
+}
+
+/* === Sidebar === */
+.layout-container > *:first-child {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px; /* sidebar width */
+  height: 100vh; /* fixed full height */
+  overflow-y: auto;
+  background-color: #ffffff; /* match your sidebar color */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  z-index: 100; /* ensure it stays above main content */
+}
+
+/* === Main Content === */
+.main-content {
+  margin-left: 300px; /* same as sidebar width */
+  padding: 40px;
+  width: calc(100% - 300px);
+  min-height: 100vh;
+  background-color: #f9fafb;
+  color: #1e293b;
+  font-family: "Poppins", sans-serif;
+  overflow-y: auto; /* allow scrolling only here */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9; /* subtle scroll */
+}
+
+/* Optional: make scrollbar prettier in Webkit browsers */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}

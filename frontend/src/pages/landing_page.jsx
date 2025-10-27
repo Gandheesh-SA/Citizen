@@ -4,6 +4,7 @@ import "../styles/landing.css";
 import Navbars from "../components/navbar";
 import LandScreen from "../components/home";
 import Abouts from "../components/about";
+import Service from "../components/services";
 
 
 export default function LandingPage() {
@@ -18,6 +19,8 @@ export default function LandingPage() {
    
       </div>
         <Abouts />
+        <Service />
+
 
     </>
   );

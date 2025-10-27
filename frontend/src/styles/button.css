@@ -1,0 +1,39 @@
+.btn-primary,
+.btn-outline {
+  font-size: 1rem;       
+  font-weight: 500;       
+  padding: 15px 28px;     
+  border-radius: 8px;     
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #104c44, #1c6f63);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 20px rgba(16, 76, 68, 0.25);
+  background: #005b5f; /* hover color */
+}
+
+.btn-outline {
+  border: 2px solid #104c44;
+  background: white;
+  color: #104c44;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: #104c44;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

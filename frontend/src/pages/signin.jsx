@@ -1,59 +1,106 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import React, { useState } from "react";
 import { MdOutlineEmail, MdLockOutline } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF } from "react-icons/fa";
+import { FaFacebookF, FaApple } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { FaApple } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-
+import CustomInput from "../components/custom_input.jsx";
+import Button from "../components/button.jsx"; 
 import "../styles/auth.css";
-
-const signInSchema = yup.object({
-  email: yup.string().email("Invalid Email").required("Email is required"),
-  password: yup.string().min(6, "Minimum 6 characters").required("Password is required"),
-});
+import axios from "axios"; 
 
 export default function SignIn() {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
-    resolver: yupResolver(signInSchema),
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (data) => console.log("Sign In Data:", data);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid Email";
+
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+      try {
+    const res = await axios.post("http://localhost:8000/login", formData);
+
+    console.log("Login successful:", res.data);
+
+    
+    navigate("/home");
+    
+  } catch (err) {
+    if (err.response) {
+      alert(err.response.data.message || "Login failed!");
+    } else {
+      alert("Server not reachable!");
+    }
+    console.error("Error during login:", err);
+  } finally {
+    setIsSubmitting(false);
+  }
+  };
 
   return (
     <div className="auth-container">
-      {/* Left Section - White Form Area */}
       <div className="left-section white-bg">
-        <div className="logo">
-          <div className="logo-icon"></div>
-          <h1>GLATA</h1>
-        </div>
+        <div className="logo"><h1>CITIZEN</h1></div>
         <h2>Welcome Back</h2>
         <p className="welcome-text">Welcome back, please enter your details</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="login-form">
-          <div className="custom-input">
-            <div className="input-icon"><MdOutlineEmail size={20} /></div>
-            <div className="input-body">
-              <label>Email</label>
-              <input type="email" placeholder="Enter your email" {...register("email")} />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="login-form">
+          <CustomInput
+            label="Email"
+            type="email"
+            placeholder="Enter your email"
+            icon={MdOutlineEmail}
+            registerProps={{
+              name: "email",
+              value: formData.email,
+              onChange: handleChange
+            }}
+          />
+          {errors.email && <span className="error-text">{errors.email}</span>}
 
-          <div className="custom-input">
-            <div className="input-icon"><MdLockOutline size={20} /></div>
-            <div className="input-body">
-              <label>Password</label>
-              <input type="password" placeholder="Enter your password" {...register("password")} />
-            </div>
-          </div>
+          <CustomInput
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            icon={MdLockOutline}
+            registerProps={{
+              name: "password",
+              value: formData.password,
+              onChange: handleChange
+            }}
+          />
+          {errors.password && <span className="error-text">{errors.password}</span>}
 
-          <button type="submit" disabled={isSubmitting} className="sign-in-btn">
-            {isSubmitting ? "Signing in..." : "Sign In"}
-          </button>
+          <Button
+            type="primary"
+            width="100%"
+            isLoading={isSubmitting}
+          >
+            Sign In
+          </Button>
         </form>
 
         <div className="divider"><span>Or Continue with</span></div>
@@ -62,27 +109,13 @@ export default function SignIn() {
           <button className="social-btn facebook"><FaFacebookF color="#1877f2" size={20} /></button>
           <button className="social-btn x"><FaXTwitter size={20} /></button>
           <button className="social-btn apple"><FaApple size={20} /></button>
-
         </div>
 
-        <p className="signup-text">Don’t have an account? <a href="#">Sign Up</a></p>
+        <p className="signup-text">Don’t have an account? <Link to="/signup">Sign Up</Link></p>
       </div>
 
-      {/* Right Section - Green Analytics */}
       <div className="right-section green-bg">
-        <div className="analytics-card">
-          <h3>Analytics</h3>
-          <div className="chart-placeholder"></div>
-        </div>
-
-        <div className="circle-card">
-          <div className="circle"><span>1.2k</span></div>
-        </div>
-
-        <div className="insights-text">
-          <h3>Data Insights</h3>
-          <p>Access analytics and insights into our business performance effortlessly.</p>
-        </div>
+      
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import React from "react";
 import "../styles/landing.css";
 import hero from "../assets/hero.png";
 import { useNavigate } from "react-router-dom";
+import Button from "./button";
 
 
 export default function LandScreen() {
@@ -29,8 +30,8 @@ const navigate = useNavigate();
           Spot problems in your city, share them instantly, and rally community support. Empower authorities to fix what truly matters first.
         </p>
         <div className="buttons">
-          <button className="btn-primary" onClick={signIn}>Get Started</button>
-          <button className="btn-outline" onClick={stayOn}>Learn More ↗</button>
+          <Button type="primary" onClick={signIn}>Get Started</Button>
+      <Button type="outline" onClick={stayOn}>Learn More ↗</Button>
         </div>
 
       </div>
