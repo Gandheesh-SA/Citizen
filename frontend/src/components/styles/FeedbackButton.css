@@ -1,0 +1,15 @@
+.btn-feedback {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+  margin-left: 10px;
+}
+
+.btn-feedback:hover {
+  background: #218838;
+}
