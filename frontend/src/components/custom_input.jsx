@@ -3,29 +3,29 @@ import "../styles/custominput.css";
 
 const CustomInput = ({
   label,
-  type = "text", // text, email, tel, select
+  type = "text",
   placeholder,
   icon: Icon,
-  options = [], // for dropdowns
-  multiple = false, // for multi-selects
+  options = [],
+  multiple = false,
   registerProps,
 }) => {
   return (
-    <div className="custom-input">
+    <div className="custom-input1">
       {Icon && (
-        <div className="input-icon">
+        <div className="input-icon1">
           <Icon size={20} />
         </div>
       )}
 
-      <div className="input-body">
+      <div className="input-body1">
         {label && <label>{label}</label>}
 
         {type === "select" ? (
           <select
             {...registerProps}
             multiple={multiple}
-            defaultValue={registerProps.value || ""}
+            value={registerProps.value || ""} // ✅ controlled select
           >
             {!multiple && (
               <option value="" disabled>

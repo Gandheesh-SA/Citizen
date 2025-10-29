@@ -1,97 +1,7 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  color: #111;
-  background: #fff;
-}
-
-.landing-container {
-  width: 100%;
-}
-
-
-  html {
-  scroll-behavior: smooth; /* ✅ Smooth scrolling for the whole page */
-}
-
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center; /* ✅ ensures vertical centering */
-  justify-content: space-between;
-
-  height: 70px;
-  padding: 0 80px;
-  background: #ffffff;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-  font-family: 'Inter', sans-serif;
-}
 
 
 
-.landing-container {
-  padding-top: 70px; /* Height of navbar */
-}
-
-.logo {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #104c44;
-  display: flex;
-  align-items: center; /* ✅ vertically center the text/logo */
-  height: 100%;
-}
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 35px;
-  align-items: center; /* ✅ vertically center links */
-  margin: 0;
-  padding: 0;
-  font-size: 1rem;
-}
-
-.nav-links li {
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.3s ease;
-}
-
-.nav-links li:hover {
-  color: #104c44;
-}
-
-.navbar .nav-btn {
-  display: flex;
-  align-items: center; /* ✅ vertically center the button text */
-  justify-content: center;
-  padding: 6px 16px !important;
-  height: 38px !important;
-  margin-bottom: 0 !important;
-  font-size: 0.9rem !important;
-  border-radius: 6px !important;
-  line-height: 1;
-}
-
-.navbar .nav-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(16, 76, 68, 0.25);
-}
-
-
-
-.main-section {
+.main-section1 {
   display: flex;
   align-items: center;
   padding: 20px 60px 60px;
@@ -100,12 +10,12 @@ body {
   gap:75px; 
 }
 
-.text-section {
+.text-section1 {
   flex: 0.9;
   max-width: 500px;
 }
 
-.text-section .tag {
+.text-section1 .tag1 {
   background: #e8f5ea;
   color: #104c44;
   font-size: 0.8rem;
@@ -115,20 +25,20 @@ body {
   margin-bottom: 20px;
 }
 
-.text-section h1 {
+.text-section1 h1 {
   font-size: 2.5rem;
   margin-bottom: 25px;
   line-height: 1.2;
 }
 
-.text-section p {
+.text-section1 p {
   font-size: 1.05rem;
   margin-bottom: 35px;
   line-height: 1.4;
   color: #555;
 }
 
-.buttons {
+.buttons1 {
   display: flex;
   gap: 15px;
   margin-bottom: 40px;
@@ -167,14 +77,14 @@ body {
   color: white;
 }
 
-.image-section {
+.image-section1 {
   display: flex;
   justify-content: center;
   align-items: center;
   flex: 1.1;
 }
 
-.main-image {
+.main-image1 {
   width: 100%;
   border-radius: 15px;
   max-width: 800px;
@@ -189,7 +99,7 @@ body {
 
 /* ✅ RESPONSIVE STYLES */
 @media (max-width: 1024px) {
-  .main-section {
+  .main-section1 {
     flex-direction: column;
     padding: 40px;
     text-align: center;
@@ -197,11 +107,11 @@ body {
 .navbar {
     padding: 12px 40px;
   }
-  .text-section {
+  .text-section1 {
     order: 1;
   }
 
-  .image-section {
+  .image-section1 {
     order: 2;
     width: 100%;
     display: flex;
@@ -225,18 +135,18 @@ body {
     display: none; /* Hide links for mobile (optional for burger menu) */
   }
 
-  .main-section {
+  .main-section1 {
     flex-direction: column;
   justify-content: center;
   text-align: center;
   padding: 40px 20px;
   }
 
-  .text-section h1 {
+  .text-section1 h1 {
     font-size: 2rem;
   }
 
-  .text-section p {
+  .text-section1 p {
     font-size: 0.95rem;
   }
 
@@ -246,7 +156,7 @@ body {
 }
 
 @media (max-width: 480px) {
-  .text-section h1 {
+  .text-section1 h1 {
     font-size: 1.6rem;
   }
 
@@ -260,7 +170,7 @@ body {
     width: 100%;
   }
 
-  .main-image {
+  .main-image1 {
     border-radius: 10px;
   }
 }
@@ -333,3 +243,35 @@ body {
   }
 }
 
+
+.navbar1 {
+  background-color: #1c6f63; /* green background */
+  color: white;
+  display: flex;
+  align-items: center; /* vertically center logo */
+  justify-content: flex-start;
+  padding: 0 20px; /* no vertical padding, only horizontal */
+  height: 10vh; /* clean fixed height */
+  margin: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logo1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+  cursor: pointer;
+  line-height: 1; /* avoid vertical expansion */
+  margin-left: 5px; /* small left margin for breathing space */
+}
+
+
+.logo1:hover {
+  opacity: 0.9;
+}
+
+.landing-container1{
+  padding: 0;
+  margin: 0;
+}

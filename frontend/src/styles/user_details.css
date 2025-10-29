@@ -40,9 +40,9 @@
   padding: 60px 80px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* prevent forced vertical centering */
-  overflow-y: auto;            /* ✅ enables scroll */
-  max-height: 100vh;           /* ✅ prevents overflow outside viewport */
+  justify-content: flex-start;
+  overflow-y: visible; /* ✅ allow normal page scroll */
+  max-height: none;    /* ✅ no internal scroll restriction */
 }
 
 .trainer-right h2 {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   MdPersonOutline,
   MdOutlineEmail,
@@ -7,25 +7,21 @@ import {
   MdOutlineWork,
   MdVolunteerActivism,
   MdDateRange,
+  MdConnectWithoutContact,
+  MdManageAccounts,
 } from "react-icons/md";
-import axios from "axios";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaGenderless } from "react-icons/fa6";
 import { GiAwareness } from "react-icons/gi";
 import { SiCcleaner } from "react-icons/si";
-import { FaGenderless } from "react-icons/fa6";
-
 import { HiDocumentReport } from "react-icons/hi";
-import { MdConnectWithoutContact } from "react-icons/md";
-
-import { MdManageAccounts } from "react-icons/md";
 
 import CustomInput from "../components/custom_input.jsx";
 import Button from "../components/button.jsx";
 import "../styles/user_details.css";
-import { useLocation } from "react-router-dom";
 
 const UserForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const signUpData = location.state || {};
 
   const [formData, setFormData] = useState({
@@ -43,46 +39,91 @@ const UserForm = () => {
     volunteeringDays: "",
   });
 
- 
+  const [errors, setErrors] = useState({});
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "volunteeringTypes") {
       let updatedTypes = [...formData.volunteeringTypes];
-      if (checked) {
-        updatedTypes.push(value);
-      } else {
-        updatedTypes = updatedTypes.filter((t) => t !== value);
-      }
+      if (checked) updatedTypes.push(value);
+      else updatedTypes = updatedTypes.filter((t) => t !== value);
+
       setFormData({ ...formData, volunteeringTypes: updatedTypes });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-    const res = await axios.post("http://localhost:8000/register", formData);
-    console.log("✅ User registered:", res.data);
-
-    alert("Registration successful!");
-    navigate("/home");
-  } catch (error) {
-    console.error("Registration failed:", error.response?.data || error.message);
-    alert("Something went wrong. Please try again.");
-  }
-  
+  // Validation
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.fullName) newErrors.fullName = "Full Name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Invalid email address";
+    return newErrors;
   };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log("Submit clicked");
+  const validationErrors = validate();
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:7500/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        location: formData.location,
+        work: formData.work,
+        gender: formData.gender,
+        age: formData.age,
+        preferredContact: formData.preferredContact,
+        volunteering: formData.volunteering,
+        volunteeringTypes: formData.volunteeringTypes,
+        volunteeringDays: formData.volunteeringDays,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErrors({ general: data.message || "Registration failed" });
+    } else {
+      // ✅ Save user info and token locally
+      if (data.user && data.token) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+      }
+
+      // ✅ Navigate to home
+      navigate("/home");
+    }
+  } catch (error) {
+    setErrors({ general: "Server error during registration" });
+  }
+};
+
 
   return (
     <div className="trainer-container">
       <div className="trainer-left"></div>
 
       <div className="trainer-right">
-        <h2>COMPLETE  REGISTRATION</h2>
+        <h2>COMPLETE REGISTRATION</h2>
+        {errors.general && <p className="error">{errors.general}</p>}
+
         <form onSubmit={handleSubmit} className="trainer-form">
           <div className="form-grid">
             <CustomInput
@@ -96,6 +137,7 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
+
             <CustomInput
               label="Email Address"
               type="email"
@@ -107,6 +149,7 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
+
             <CustomInput
               label="Phone Number"
               type="number"
@@ -118,11 +161,11 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
-             <CustomInput
+
+            <CustomInput
               label="Preferred Contact Method"
               type="select"
               icon={MdConnectWithoutContact}
-              placeholder="Select Contact Method"
               options={["Email", "Phone", "App Notification"]}
               registerProps={{
                 name: "preferredContact",
@@ -130,11 +173,11 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
-             <CustomInput
+
+            <CustomInput
               label="Gender"
               type="select"
               icon={FaGenderless}
-              placeholder="Select Gender"
               options={["Male", "Female", "Other"]}
               registerProps={{
                 name: "gender",
@@ -142,18 +185,19 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
-             <CustomInput
+
+            <CustomInput
               label="Age"
               type="number"
               icon={MdDateRange}
               placeholder="Enter your age"
-              
               registerProps={{
                 name: "age",
                 value: formData.age,
                 onChange: handleChange,
               }}
             />
+
             <CustomInput
               label="Location"
               placeholder="Enter Residence"
@@ -164,6 +208,7 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
+
             <CustomInput
               label="Work"
               placeholder="Enter your Work Designation"
@@ -174,8 +219,6 @@ const UserForm = () => {
                 onChange: handleChange,
               }}
             />
-           
-
           </div>
 
           {/* Volunteering Section */}
@@ -185,7 +228,6 @@ const UserForm = () => {
               type="select"
               icon={MdVolunteerActivism}
               options={["Yes", "No"]}
-              placeholder="Select Option"
               registerProps={{
                 name: "volunteering",
                 value: formData.volunteering,
@@ -204,113 +246,44 @@ const UserForm = () => {
             {formData.volunteering === "Yes" && (
               <>
                 <div className="multi-check-container">
-                  {/* Awareness Campaigns */}
-                  <div
-                    className={`custom-checkbox ${
-                      formData.volunteeringTypes.includes("Awareness Campaigns")
-                        ? "active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleChange({
-                        target: {
-                          name: "volunteeringTypes",
-                          value: "Awareness Campaigns",
-                          type: "checkbox",
-                          checked: !formData.volunteeringTypes.includes(
-                            "Awareness Campaigns"
-                          ),
-                        },
-                      })
-                    }
-                  >
-                    <GiAwareness size={18} className="checkbox-icon" />
-                    <span>Awareness Campaigns</span>
-                  </div>
-
-                  {/* Community Cleaning Drives */}
-                  <div
-                    className={`custom-checkbox ${
-                      formData.volunteeringTypes.includes(
-                        "Community Cleaning Drives"
-                      )
-                        ? "active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleChange({
-                        target: {
-                          name: "volunteeringTypes",
-                          value: "Community Cleaning Drives",
-                          type: "checkbox",
-                          checked: !formData.volunteeringTypes.includes(
-                            "Community Cleaning Drives"
-                          ),
-                        },
-                      })
-                    }
-                  >
-                    <SiCcleaner size={18} className="checkbox-icon" />
-                    <span>Community Cleaning Drives</span>
-                  </div>
-
-                  {/* Event Management */}
-                  <div
-                    className={`custom-checkbox ${
-                      formData.volunteeringTypes.includes("Event Management")
-                        ? "active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleChange({
-                        target: {
-                          name: "volunteeringTypes",
-                          value: "Event Management",
-                          type: "checkbox",
-                          checked:
-                            !formData.volunteeringTypes.includes(
-                              "Event Management"
-                            ),
-                        },
-                      })
-                    }
-                  >
-                    <MdManageAccounts size={18} className="checkbox-icon" />
-                    <span>Event Management</span>
-                  </div>
-
-                  {/* Digital Reporting Assistance */}
-                  <div
-                    className={`custom-checkbox ${
-                      formData.volunteeringTypes.includes(
-                        "Digital Reporting Assistance"
-                      )
-                        ? "active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleChange({
-                        target: {
-                          name: "volunteeringTypes",
-                          value: "Digital Reporting Assistance",
-                          type: "checkbox",
-                          checked: !formData.volunteeringTypes.includes(
-                            "Digital Reporting Assistance"
-                          ),
-                        },
-                      })
-                    }
-                  >
-                    <HiDocumentReport size={18} className="checkbox-icon" />
-                    <span>Digital Reporting Assistance</span>
-                  </div>
+                  {[
+                    { label: "Awareness Campaigns", icon: GiAwareness },
+                    { label: "Community Cleaning Drives", icon: SiCcleaner },
+                    { label: "Event Management", icon: MdManageAccounts },
+                    {
+                      label: "Digital Reporting Assistance",
+                      icon: HiDocumentReport,
+                    },
+                  ].map(({ label, icon: Icon }) => (
+                    <div
+                      key={label}
+                      className={`custom-checkbox ${
+                        formData.volunteeringTypes.includes(label)
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        handleChange({
+                          target: {
+                            name: "volunteeringTypes",
+                            value: label,
+                            type: "checkbox",
+                            checked:
+                              !formData.volunteeringTypes.includes(label),
+                          },
+                        })
+                      }
+                    >
+                      <Icon size={18} className="checkbox-icon" />
+                      <span>{label}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <CustomInput
                   label="Days Available"
                   type="select"
                   options={["Weekdays", "Weekends", "Flexible"]}
-                  placeholder="Select Days"
                   registerProps={{
                     name: "volunteeringDays",
                     value: formData.volunteeringDays,
@@ -322,7 +295,7 @@ const UserForm = () => {
           </div>
 
           <div className="submit-container">
-            <Button type="primary" width="150px">
+            <Button type="submit" variant="primary" width="150px">
               Register
             </Button>
           </div>

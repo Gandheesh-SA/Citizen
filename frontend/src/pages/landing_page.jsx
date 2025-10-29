@@ -12,14 +12,13 @@ export default function LandingPage() {
 
   return (
     <>
-    <div className="landing-container">
+    <div className="landing-container1">
     
         <Navbars/>
         <LandScreen />
    
       </div>
-        <Abouts />
-        <Service />
+        
 
 
     </>

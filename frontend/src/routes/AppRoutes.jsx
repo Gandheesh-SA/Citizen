@@ -6,7 +6,7 @@ import SignIn from "../pages/signin";
 import SignUp from "../pages/signup";
 import UserForm from "../pages/user_details";
 import Home from "../components/home_page.jsx";
-import PostComplaint from "../components/complaint_page.jsx";
+import PostComplaint from "../components/complaint_page.jsx"
 import UserDashboard from "../components/user_dashboard.jsx";
 import Help from "../components/help.jsx";
 
@@ -21,12 +21,12 @@ export default function AppRoutes() {
         <Route path="/user_registration" element={<UserForm />} />
 
         {/* Protected/Layout Routes */}
-        <Route element={<Layout />}>
+      <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/post-complaint" element={<PostComplaint />} />
           <Route path="/help" element={<Help />} />
-          <Route path="/user-dashboard" element={<UserDashboard />} />
-        </Route>
+          <Route path="/user-dashboard" element={<UserDashboard />} /> 
+        </Route> 
       </Routes>
     </Router>
   );

@@ -13,26 +13,9 @@ export default function Navbars() {
   }
 
   return (
-    <nav className="navbar">
-      <div className="logo">CITIZEN</div>
-      <ul className="nav-links">
-        <li>
-          Home
-        </li>
-        <li>
-          About
-        </li>
-        <li>
-        Services
-        </li>
-        <li>
-          How We Work
-        </li>
-        <li>
-          Contact
-        </li>
-      </ul>
-     <Button type="primary" className="nav-btn" onClick={signIn}>Get Started</Button>
+    <nav className="navbar1">
+      <div className="logo1">CITIZEN</div>
+      
     </nav>
   );
 }

@@ -1,4 +1,4 @@
-.custom-input {
+.custom-input1 {
   display: flex;
   align-items: center;
   border: 1px solid #dcdcdc;
@@ -12,7 +12,7 @@
 
 
 
-.input-icon {
+.input-icon1 {
   background: linear-gradient(135deg, #104c44, #1c6f63);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -23,20 +23,20 @@
   align-items: center;
 }
 
-.input-body {
+.input-body1 {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.input-body label {
+.input-body1 label {
   font-size: 12px;
   color: #777;
   margin-bottom: 2px;
 }
 
 /* Text inputs */
-.input-body input {
+.input-body1 input {
   border: none;
   outline: none;
   font-size: 14px;
@@ -45,12 +45,12 @@
   background: transparent;
 }
 
-.input-body input::placeholder {
+.input-body1 input::placeholder {
   color: #bbb;
 }
 
 /* Dropdowns (selects) */
-.input-body select {
+.input-body1 select {
   border: none;
   outline: none;
   font-size: 14px;
@@ -65,7 +65,7 @@
 }
 
 /* Optional: custom dropdown arrow */
-.input-body select {
+.input-body1 select {
   background-image: url("data:image/svg+xml;utf8,<svg fill='%23104c44' height='10' width='10' xmlns='http://www.w3.org/2000/svg'><polygon points='0,0 10,0 5,6'/></svg>");
   background-repeat: no-repeat;
   background-position: right 6px center;
@@ -73,7 +73,7 @@
 }
 
 /* Multi-select styling */
-.input-body select[multiple] {
+.input-body1 select[multiple] {
   height: auto;
   min-height: 70px;
   padding-right: 0;
@@ -81,12 +81,12 @@
   cursor: default;
 }
 
-.input-body select option {
+.input-body1 select option {
   color: #104c44;
 }
 
 /* ---- DROPDOWN STYLING ---- */
-.input-body select {
+.input-body1 select {
   border: none;
   outline: none;
   background: #fff;

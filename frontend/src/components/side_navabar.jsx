@@ -6,31 +6,28 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    
     localStorage.removeItem("user");
-    localStorage.removeItem("token"); 
-
-   
+    localStorage.removeItem("token");
     navigate("/");
   };
 
   return (
     <div className="sidebar">
-      <h2 className="logo">CITIZEN</h2>
+      {/* Main content (logo + nav) */}
+      <div className="sidebar-main">
+        <h2 className="logo">CITIZEN</h2>
+        <nav className="nav-menu">
+          <NavLink to="/home" className="nav-item">Home</NavLink>
+          <NavLink to="/post-complaint" className="nav-item">Post Complaint</NavLink>
+          <NavLink to="/help" className="nav-item">Help</NavLink>
+          <NavLink to="/user-dashboard" className="nav-item">User Dashboard</NavLink>
+        </nav>
+      </div>
 
-      <nav className="nav-menu">
-        <NavLink to="/home" className="nav-item">Home</NavLink>
-        <NavLink to="/post-complaint" className="nav-item">Post Complaint</NavLink>
-        <NavLink to="/help" className="nav-item">Help</NavLink>
-        <NavLink to="/user-dashboard" className="nav-item">User Dashboard</NavLink>
-      </nav>
-
-      <button className="logout-btn" onClick={handleLogout}>
-        Logout
-      </button>
-
-      <div className="sidebar-footer">
-        &copy; 2025 Citizen App
+      {/* Bottom (logout + footer) */}
+      <div className="sidebar-bottom">
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <div className="sidebar-footer">© 2025 Citizen App</div>
       </div>
     </div>
   );

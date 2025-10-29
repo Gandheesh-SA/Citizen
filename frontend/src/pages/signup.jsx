@@ -3,7 +3,7 @@ import { MdOutlineEmail, MdLockOutline, MdPersonOutline } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaApple } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,  } from "react-router-dom";
 
 import CustomInput from "../components/custom_input.jsx";
 import Button from "../components/button.jsx";
@@ -124,13 +124,7 @@ export default function SignUp() {
           </Button>
         </form>
 
-        <div className="divider"><span>Or Continue with</span></div>
-        <div className="social-buttons">
-          <button className="social-btn google"><FcGoogle size={20} /></button>
-          <button className="social-btn facebook"><FaFacebookF color="#1877f2" size={20} /></button>
-          <button className="social-btn x"><FaXTwitter size={20} /></button>
-          <button className="social-btn apple"><FaApple size={20} /></button>
-        </div>
+       
 
         <p className="signup-text">Already have an account? <Link to="/signin">Sign In</Link></p>
       </div>

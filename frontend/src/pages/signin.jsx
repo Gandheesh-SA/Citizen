@@ -4,13 +4,14 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaApple } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import CustomInput from "../components/custom_input.jsx";
 import Button from "../components/button.jsx"; 
 import "../styles/auth.css";
 import axios from "axios"; 
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,11 +42,15 @@ export default function SignIn() {
 
     setIsSubmitting(true);
       try {
-    const res = await axios.post("http://localhost:8000/login", formData);
+        console.log("🟡 Sending login data:", formData);
 
+   const res = await axios.post("http://localhost:7500/api/auth/login", formData, {
+  headers: { "Content-Type": "application/json" },
+});
     console.log("Login successful:", res.data);
 
-    
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+localStorage.setItem("token", res.data.token);
     navigate("/home");
     
   } catch (err) {

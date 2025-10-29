@@ -2,18 +2,20 @@ import React from "react";
 import "../styles/button.css";
 
 const Button = ({
-  type = "primary", // "primary" or "outline"
+  variant = "primary",  // ✅ for style ("primary" or "outline")
+  type = "button",      // ✅ real HTML button type
   onClick,
   children,
   width = "auto",
   disabled = false,
   isLoading = false,
-  loadingText = "Loading..."
+  loadingText = "Loading...",
 }) => {
-  const className = type === "primary" ? "btn-primary" : "btn-outline";
+  const className = variant === "primary" ? "btn-primary" : "btn-outline";
 
   return (
     <button
+      type={type}                // ✅ now behaves correctly in forms
       className={className}
       onClick={onClick}
       disabled={disabled || isLoading}
