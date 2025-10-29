@@ -3,6 +3,9 @@ import { FaUserCircle } from "react-icons/fa";
 import { MdEdit, MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import "../styles/user_dashboard.css";
+import FeedbackButton from "./FeedbackButton";
+
+// User Dashboard Component    
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -78,6 +81,13 @@ const UserDashboard = () => {
     setUser({ ...user, [name]: value });
   };
 
+  const handleDeleteAccount = () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      // Add your account deletion logic here
+      alert("Account deletion functionality to be implemented");
+    }
+  };
+
   return (
     <div className="dashboard-page">
       <header className="dashboard-header">
@@ -86,17 +96,30 @@ const UserDashboard = () => {
           <h1>Hi, {user.fullName} 👋</h1>
           <p>Welcome to your dashboard</p>
         </div>
+        
       </header>
 
       <section className="user-section">
         <div className="section-header">
           <h2>USER DETAILS</h2>
-          <button
-            className={`edit-button ${editable ? "active" : ""}`}
-            onClick={() => setEditable(!editable)}
-          >
-            <MdEdit /> {editable ? "Save" : "Edit"}
-          </button>
+          <div className="action-buttons">
+            <button
+              className={`edit-button ${editable ? "active" : ""}`}
+              onClick={() => setEditable(!editable)}
+            >
+              <MdEdit /> {editable ? "Save" : "Edit"}
+            </button>
+            
+            {/* Account Actions */}
+            <div className="account-actions">
+              <button 
+                className="delete-account-btn" 
+                onClick={handleDeleteAccount}
+              >
+                <MdDelete /> Delete Account
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="user-details">
@@ -155,6 +178,7 @@ const UserDashboard = () => {
                 <th>Date</th>
                 <th>Status</th>
                 <th>Actions</th>
+                <th>Feedback</th>
               </tr>
             </thead>
             <tbody>
@@ -167,13 +191,16 @@ const UserDashboard = () => {
                   <td className={`status ${c.status?.toLowerCase().replace(" ", "-")}`}>
                     {c.status || "Pending"}
                   </td>
-                  <td>
+                  <td className="action-buttons">
                     <button className="edit-btn" onClick={() => handleEdit(c)}>
                       <MdEdit /> Edit
                     </button>
                     <button className="delete-btn" onClick={() => handleDelete(c._id)}>
                       <MdDelete /> Delete
                     </button>
+                  </td>
+                  <td>
+                    <FeedbackButton user={user} />
                   </td>
                 </tr>
               ))}
