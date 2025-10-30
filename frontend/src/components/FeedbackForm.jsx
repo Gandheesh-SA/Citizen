@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './styles/FeedbackForm.css';
 
-const FeedbackForm = ({ user, onClose }) => {
+const FeedbackForm = ({ user, complaint, onClose, editMode = false, existingFeedback = null }) => {
   const API_BASE_URL = 'http://localhost:7500';
 
   const [formData, setFormData] = useState({
     full_name: user?.full_name || user?.fullName || '',
     email: user?.email || '',
-    feedback_type: '',
-    reference_id: '',
-    rating: 0,
-    experience_rating: 50,
-    detailed_feedback: '',
-    feedback_categories: [],
+    feedback_type: editMode ? existingFeedback?.feedback_type : '',
+    reference_id: editMode ? existingFeedback?.reference_id : (complaint?._id || ''),
+    rating: editMode ? existingFeedback?.rating : 0,
+    experience_rating: editMode ? existingFeedback?.experience_rating : 50,
+    detailed_feedback: editMode ? existingFeedback?.detailed_feedback : '',
+    feedback_categories: editMode ? existingFeedback?.feedback_categories || [] : [],
     attachment: null,
-    experience_date: new Date().toISOString().split('T')[0],
-    location: '',
-    follow_up: false,
-    suggestions: ''
+    experience_date: editMode ? new Date(existingFeedback?.experience_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    location: editMode ? existingFeedback?.location : '',
+    follow_up: editMode ? existingFeedback?.follow_up : false,
+    suggestions: editMode ? existingFeedback?.suggestions || '' : ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,11 +80,11 @@ const FeedbackForm = ({ user, onClose }) => {
     try {
       const submitData = new FormData();
       
-      // Append all form data
+      // Append all form data - MAKE SURE reference_id is included
       submitData.append('full_name', formData.full_name);
       submitData.append('email', formData.email);
       submitData.append('feedback_type', formData.feedback_type);
-      submitData.append('reference_id', formData.reference_id);
+      submitData.append('reference_id', formData.reference_id); // This is the complaint ID
       submitData.append('rating', formData.rating.toString());
       submitData.append('experience_rating', formData.experience_rating.toString());
       submitData.append('detailed_feedback', formData.detailed_feedback);
@@ -103,15 +103,25 @@ const FeedbackForm = ({ user, onClose }) => {
         submitData.append('attachment', formData.attachment);
       }
 
-      const response = await axios.post(`${API_BASE_URL}/api/feedback/submit`, submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        timeout: 15000,
-      });
+      console.log('Submitting feedback with complaint ID:', formData.reference_id);
+
+      let response;
+      if (editMode && existingFeedback) {
+        response = await axios.put(`${API_BASE_URL}/api/feedback/${existingFeedback._id}`, submitData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        response = await axios.post(`${API_BASE_URL}/api/feedback/submit`, submitData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
 
       if (response.data.success) {
-        setMessage('Thank you for your feedback! We appreciate your input.');
+        setMessage(editMode ? 'Feedback updated successfully!' : 'Thank you for your feedback! We appreciate your input.');
         setTimeout(() => {
           onClose();
         }, 2000);
@@ -131,17 +141,17 @@ const FeedbackForm = ({ user, onClose }) => {
     setFormData({
       full_name: user?.full_name || user?.fullName || '',
       email: user?.email || '',
-      feedback_type: '',
-      reference_id: '',
-      rating: 0,
-      experience_rating: 50,
-      detailed_feedback: '',
-      feedback_categories: [],
+      feedback_type: editMode ? existingFeedback?.feedback_type : '',
+      reference_id: editMode ? existingFeedback?.reference_id : (complaint?._id || ''),
+      rating: editMode ? existingFeedback?.rating : 0,
+      experience_rating: editMode ? existingFeedback?.experience_rating : 50,
+      detailed_feedback: editMode ? existingFeedback?.detailed_feedback : '',
+      feedback_categories: editMode ? existingFeedback?.feedback_categories || [] : [],
       attachment: null,
-      experience_date: new Date().toISOString().split('T')[0],
-      location: '',
-      follow_up: false,
-      suggestions: ''
+      experience_date: editMode ? new Date(existingFeedback?.experience_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      location: editMode ? existingFeedback?.location : '',
+      follow_up: editMode ? existingFeedback?.follow_up : false,
+      suggestions: editMode ? existingFeedback?.suggestions || '' : ''
     });
     setMessage('');
   };
@@ -150,8 +160,8 @@ const FeedbackForm = ({ user, onClose }) => {
     <div className="feedback-modal">
       <div className="feedback-container">
         <div className="feedback-header">
-          <h2>Feedback Form</h2>
-          <p>Help us improve CITIZEN by sharing your experience</p>
+          <h2>{editMode ? 'Edit Feedback' : 'Feedback Form'}</h2>
+          <p>{editMode ? 'Update your feedback below' : 'Help us improve CITIZEN by sharing your experience'}</p>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
@@ -206,18 +216,24 @@ const FeedbackForm = ({ user, onClose }) => {
             </select>
           </div>
 
-          {/* Reference ID */}
+          {/* Reference ID - Show complaint ID if available */}
           <div className="form-group">
-            <label htmlFor="reference_id">Reference ID (Optional)</label>
+            <label htmlFor="reference_id">Reference ID</label>
             <input
               type="text"
               id="reference_id"
               name="reference_id"
               value={formData.reference_id}
               onChange={handleInputChange}
-              placeholder="e.g., CMP1045 or SRV222"
-              disabled={isSubmitting}
+              placeholder="Complaint ID will be auto-filled"
+              disabled={true} // Make it read-only when complaint is provided
+              style={{background: '#f5f5f5'}}
             />
+            {complaint && (
+              <small style={{color: '#666', fontSize: '12px'}}>
+                This feedback is linked to complaint: {complaint.title}
+              </small>
+            )}
           </div>
 
           {/* Rating (1-5) */}
@@ -400,7 +416,7 @@ const FeedbackForm = ({ user, onClose }) => {
               className="btn-submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+              {isSubmitting ? 'Submitting...' : (editMode ? 'Update Feedback' : 'Submit Feedback')}
             </button>
           </div>
         </form>

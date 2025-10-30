@@ -132,4 +132,31 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/feedback/complaint/:complaintId - Get feedback by complaint ID
+router.get('/complaint/:complaintId', async (req, res) => {
+  try {
+    console.log('Fetching feedback for complaint:', req.params.complaintId);
+    
+    const feedback = await Feedback.find({ 
+      $or: [
+        { reference_id: req.params.complaintId },
+        { complaint_id: req.params.complaintId }
+      ]
+    }).sort({ createdAt: -1 });
+
+    console.log(`Found ${feedback.length} feedback entries for complaint ${req.params.complaintId}`);
+    
+    res.json({ 
+      success: true, 
+      feedback: feedback.length > 0 ? feedback[0] : null 
+    });
+  } catch (error) {
+    console.error('Error fetching complaint feedback:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
 module.exports = router;
