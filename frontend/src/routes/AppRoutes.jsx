@@ -9,6 +9,7 @@ import Home from "../components/home_page.jsx";
 import PostComplaint from "../components/complaint_page.jsx"
 import UserDashboard from "../components/user_dashboard.jsx";
 import Help from "../components/help.jsx";
+import AdminDashboard from "../pages/admin_dashboard.jsx";
 
 export default function AppRoutes() {
   return (
@@ -19,6 +20,8 @@ export default function AppRoutes() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/user_registration" element={<UserForm />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
 
         {/* Protected/Layout Routes */}
       <Route element={<Layout />}>
