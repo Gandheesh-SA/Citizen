@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import FeedbackForm from './FeedbackForm';
-import './styles/FeedbackButton.css';
 
-const FeedbackButton = ({ user }) => {
+const FeedbackButton = ({ user, complaint, compact = false, onFeedbackSubmitted }) => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
 
   const handleOpenFeedback = () => {
@@ -11,7 +10,32 @@ const FeedbackButton = ({ user }) => {
 
   const handleCloseFeedback = () => {
     setShowFeedbackForm(false);
+    if (onFeedbackSubmitted) {
+      onFeedbackSubmitted();
+    }
   };
+
+  if (compact) {
+    return (
+      <>
+        <button 
+          className="btn-feedback-compact"
+          onClick={handleOpenFeedback}
+          title="Give Feedback"
+        >
+          💬 Feedback
+        </button>
+
+        {showFeedbackForm && (
+          <FeedbackForm 
+            user={user}
+            complaint={complaint}
+            onClose={handleCloseFeedback}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -25,6 +49,7 @@ const FeedbackButton = ({ user }) => {
       {showFeedbackForm && (
         <FeedbackForm 
           user={user}
+          complaint={complaint}
           onClose={handleCloseFeedback}
         />
       )}

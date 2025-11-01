@@ -3,8 +3,7 @@ import { MdOutlineEmail, MdLockOutline } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaApple } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CustomInput from "../components/custom_input.jsx";
 import Button from "../components/button.jsx"; 
 import "../styles/auth.css";
@@ -16,11 +15,13 @@ export default function SignIn() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handle form input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
+  // Validation function
   const validate = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = "Email is required";
@@ -32,6 +33,7 @@ export default function SignIn() {
     return newErrors;
   };
 
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -41,28 +43,36 @@ export default function SignIn() {
     }
 
     setIsSubmitting(true);
-      try {
-        console.log("🟡 Sending login data:", formData);
+    try {
+      console.log("🟡 Sending login data:", formData);
 
-   const res = await axios.post("http://localhost:7500/api/auth/login", formData, {
-  headers: { "Content-Type": "application/json" },
-});
-    console.log("Login successful:", res.data);
+      const res = await axios.post("http://localhost:7500/api/auth/login", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-localStorage.setItem("token", res.data.token);
-    navigate("/home");
-    
-  } catch (err) {
-    if (err.response) {
-      alert(err.response.data.message || "Login failed!");
-    } else {
-      alert("Server not reachable!");
+      console.log("✅ Login successful:", res.data);
+
+      // Save user and token
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+
+      // Navigate based on role
+      if (res.data.user.role === "admin") {
+       window.open("http://localhost:5174", "_blank");
+      } else {
+        navigate("/home");
+      }
+
+    } catch (err) {
+      if (err.response) {
+        alert(err.response.data.message || "Login failed!");
+      } else {
+        alert("Server not reachable!");
+      }
+      console.error("Error during login:", err);
+    } finally {
+      setIsSubmitting(false);
     }
-    console.error("Error during login:", err);
-  } finally {
-    setIsSubmitting(false);
-  }
   };
 
   return (
@@ -99,11 +109,7 @@ localStorage.setItem("token", res.data.token);
           />
           {errors.password && <span className="error-text">{errors.password}</span>}
 
-          <Button
-            type="primary"
-            width="100%"
-            isLoading={isSubmitting}
-          >
+          <Button type="primary" width="100%" isLoading={isSubmitting}>
             Sign In
           </Button>
         </form>
@@ -116,12 +122,12 @@ localStorage.setItem("token", res.data.token);
           <button className="social-btn apple"><FaApple size={20} /></button>
         </div>
 
-        <p className="signup-text">Don’t have an account? <Link to="/signup">Sign Up</Link></p>
+        <p className="signup-text">
+          Don’t have an account? <Link to="/signup">Sign Up</Link>
+        </p>
       </div>
 
-      <div className="right-section green-bg">
-      
-      </div>
+      <div className="right-section green-bg"></div>
     </div>
   );
 }
