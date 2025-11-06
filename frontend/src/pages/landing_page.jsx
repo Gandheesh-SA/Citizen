@@ -1,10 +1,10 @@
 import React from "react";
 import "../styles/landing.css";
 
-import Navbars from "../components/navbar";
-import LandScreen from "../components/home";
-import Abouts from "../components/about";
-import Service from "../components/services";
+import Navbars from "../components/landingpage/navbar";
+import LandScreen from "../components/landingpage/home";
+import Abouts from "../components/landingpage/about";
+import Service from "../components/landingpage/services";
 
 
 export default function LandingPage() {

@@ -5,8 +5,8 @@ import { FaFacebookF, FaApple } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Link, useNavigate,  } from "react-router-dom";
 
-import CustomInput from "../components/custom_input.jsx";
-import Button from "../components/button.jsx";
+import CustomInput from "../../components/global/custom_input.jsx";
+import Button from "../../components/global/button.jsx";
 import "../styles/auth.css";
 
 export default function SignUp() {

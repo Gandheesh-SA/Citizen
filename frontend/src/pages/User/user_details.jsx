@@ -15,8 +15,8 @@ import { GiAwareness } from "react-icons/gi";
 import { SiCcleaner } from "react-icons/si";
 import { HiDocumentReport } from "react-icons/hi";
 
-import CustomInput from "../components/custom_input.jsx";
-import Button from "../components/button.jsx";
+import CustomInput from "../../components/global/custom_input.jsx";
+import Button from "../../components/global/button.jsx";
 import "../styles/user_details.css";
 
 const UserForm = () => {

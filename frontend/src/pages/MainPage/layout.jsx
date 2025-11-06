@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/layout.css";
-import Sidebar from "../components/side_navabar";
+import Sidebar from "../../components/main/side_navabar";
 import { Outlet, useLocation } from "react-router-dom";
 
 const RightSidebar = () => {

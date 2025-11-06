@@ -42,7 +42,13 @@ const complaintSchema = new mongoose.Schema(
       enum: ["Pending", "In Progress", "Resolved"],
       default: "Pending",
     },
-    // user field removed
+
+    // 👇 Add user reference here
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // References the 'User' model
+      required: true,
+    },
   },
   { timestamps: true }
 );

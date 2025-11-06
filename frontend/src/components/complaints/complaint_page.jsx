@@ -7,6 +7,7 @@ import "../styles/post_complaint.css";
 export default function PostComplaint() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const editingComplaint = location.state?.complaint || null;
 
   // 🧠 State initialization
@@ -54,12 +55,12 @@ export default function PostComplaint() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // ✅ Title
+  // ✅ Title validation
   if (!formData.title.trim()) {
     alert("Title is required!");
     return;
   }
-  if (!/^[A-Za-z\s]{3,}$/.test(formData.title.trim())) {
+  if (!/^[A-Za-z\s]{3,50}$/.test(formData.title.trim())) {
     alert("Title should contain only letters and be at least 3 characters long.");
     return;
   }
@@ -81,18 +82,25 @@ const handleSubmit = async (e) => {
     alert("Description cannot be empty!");
     return;
   }
-  if (formData.description.trim().length < 10) {
-    alert("Description must be at least 10 characters long.");
+  if (formData.description.trim().length < 20) {
+    alert("Description must be at least 20 characters long.");
     return;
   }
 
-  // ✅ Days (number only)
+  // ✅ Ensure at least one alphabet in description
+  const hasAlphabets = /[A-Za-z]/.test(formData.description);
+  if (!hasAlphabets) {
+    alert("Description must contain at least one alphabetic character (A-Z).");
+    return;
+  }
+
+  // ✅ Days validation
   if (!formData.days) {
     alert("Please enter number of days!");
     return;
   }
-  if (!/^\d+$/.test(formData.days) || Number(formData.days) <= 0) {
-    alert("Days must be a positive number!");
+  if (!/^\d+$/.test(formData.days) || Number(formData.days) <= 1) {
+    alert("Days must be a positive number greater than 1!");
     return;
   }
 
@@ -110,9 +118,13 @@ const handleSubmit = async (e) => {
     }
   }
 
-  // ✅ Location
+  // ✅ Location validation
   if (!formData.location.trim()) {
     alert("Please enter a location!");
+    return;
+  }
+  if (!/^[A-Za-z\s]{3,}$/.test(formData.location.trim())) {
+    alert("Location should contain only letters and be at least 3 characters long.");
     return;
   }
 
@@ -122,7 +134,7 @@ const handleSubmit = async (e) => {
     return;
   }
 
-  // 🧾 Prepare form data for backend
+  // 🧾 Prepare FormData for backend
   const formDataToSend = new FormData();
   Object.entries(formData).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -133,18 +145,34 @@ const handleSubmit = async (e) => {
   });
 
   try {
+    // ✅ Get JWT token
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to submit a complaint!");
+      return;
+    }
+
     let response;
+
     if (editingComplaint) {
+      // 🧩 Update existing complaint
       response = await fetch(
         `http://localhost:7500/api/complaints/${editingComplaint._id}`,
         {
           method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ send JWT
+          },
           body: formDataToSend,
         }
       );
     } else {
+      // 🆕 Create new complaint
       response = await fetch("http://localhost:7500/api/complaints", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ send JWT
+        },
         body: formDataToSend,
       });
     }
@@ -152,7 +180,13 @@ const handleSubmit = async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      alert(editingComplaint ? "Complaint updated successfully!" : "Complaint submitted successfully!");
+      alert(
+        editingComplaint
+          ? "Complaint updated successfully!"
+          : "Complaint submitted successfully!"
+      );
+
+      // Reset form
       setFormData({
         title: "",
         category: [],
@@ -163,15 +197,17 @@ const handleSubmit = async (e) => {
         image: "",
         location: "",
       });
+
       navigate("/user-dashboard");
     } else {
-      alert(data.message || "Operation failed.");
+      alert(data.message || "Operation failed. Please try again.");
     }
   } catch (error) {
     console.error("Error submitting complaint:", error);
-    alert("Something went wrong!");
+    alert("Something went wrong while submitting the complaint!");
   }
 };
+
 
 
   return (
@@ -217,7 +253,7 @@ const handleSubmit = async (e) => {
                 <option value="environmental">Environmental</option>
                 <option value="infrastructure">Infrastructure</option>
                 <option value="public-safety">Public Safety</option>
-                <option value="others">Others</option>
+                
               </select>
             </div>
 
@@ -227,7 +263,7 @@ const handleSubmit = async (e) => {
                 <MdCategory className="icon2" /> Category
               </label>
               <div className="checkbox-group2">
-                {["Road", "Water", "Electricity", "Sanitation", "Others"].map(
+                {["Road", "Water", "Electricity", "Sanitation", "Garbage"].map(
                   (cat) => (
                     <label key={cat} className="checkbox-label2">
                       <input
@@ -269,7 +305,7 @@ const handleSubmit = async (e) => {
                 value={formData.days}
                 onChange={handleChange}
                 placeholder="Enter number of days"
-                min="0"
+                min="1"
               />
             </div>
 

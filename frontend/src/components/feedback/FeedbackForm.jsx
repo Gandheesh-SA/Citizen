@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './styles/FeedbackForm.css';
+
 
 const FeedbackForm = ({ user, complaint, onClose, editMode = false, existingFeedback = null }) => {
   const API_BASE_URL = 'http://localhost:7500';

@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "../pages/layout.jsx";
+import Layout from "../pages/MainPage/layout.jsx";
 
 import LandingPage from "../pages/landing_page";
-import SignIn from "../pages/signin";
-import SignUp from "../pages/signup";
-import UserForm from "../pages/user_details";
-import Home from "../components/home_page.jsx";
-import PostComplaint from "../components/complaint_page.jsx"
+import SignIn from "../pages/User/signin.jsx";
+import SignUp from "../pages/User/signup.jsx";
+import UserForm from "../pages/User/user_details.jsx";
+import Home from "../components/main/home_page.jsx";
+import PostComplaint from "../components/complaints/complaint_page.jsx"
 import UserDashboard from "../components/user_dashboard.jsx";
-import Help from "../components/help.jsx";
-import AdminDashboard from "../pages/admin_dashboard.jsx";
+import Help from "../components/main/help.jsx";
+import AdminDashboard from "../pages/Admin/admin_dashboard.jsx";
 
 export default function AppRoutes() {
   return (
