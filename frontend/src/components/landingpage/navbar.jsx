@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/landing.css";
+import "../../styles/landing.css";
 
 import { useNavigate } from "react-router-dom";
 import Button from "../global/button";

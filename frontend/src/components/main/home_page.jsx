@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaComment, FaArrowUp } from "react-icons/fa";
-import "../styles/homepage.css";
+import "../../styles/homepage.css";
 
 const dummyCards = Array.from({ length: 10 }, (_, i) => ({
   id: i + 1,

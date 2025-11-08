@@ -17,7 +17,7 @@ import { HiDocumentReport } from "react-icons/hi";
 
 import CustomInput from "../../components/global/custom_input.jsx";
 import Button from "../../components/global/button.jsx";
-import "../styles/user_details.css";
+import "../../styles/user_details.css";
 
 const UserForm = () => {
   const navigate = useNavigate();

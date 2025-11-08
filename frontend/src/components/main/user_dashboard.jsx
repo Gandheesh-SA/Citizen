@@ -1,275 +1,503 @@
 import React, { useState, useEffect } from "react";
-import { FaUserCircle, FaEdit, FaTrash } from "react-icons/fa";
-import { MdEdit, MdDelete } from "react-icons/md";
+import {
+  MdEdit,
+  MdDelete,
+  MdSave,
+  MdCancel,
+  MdAccountCircle,
+  MdOutlineReceipt,
+  MdDashboard,
+  MdFeedback,
+  MdViewAgenda,
+} from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import "../styles/user_dashboard.css";
-import FeedbackButton from "./FeedbackButton";
-import FeedbackForm from "./FeedbackForm";
+import "../../styles/user_dashboard.css";
 
-const UserDashboard = () => {
+export default function UserDashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [formUser, setFormUser] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [complaints, setComplaints] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [currentView, setCurrentView] = useState("OVERVIEW");
 
-  const [user, setUser] = useState({
-    fullName: "John Doe",
-    email: "john@example.com",
-    phone: "9876543210",
-    location: "Chennai",
-    work: "Software Engineer",
-    gender: "Male",
-    age: 26,
-    preferredContact: "Email",
-    volunteering: "Yes",
-    volunteeringTypes: ["Teaching", "Fundraising"],
-    volunteeringDays: "Weekend",
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [feedbackForm, setFeedbackForm] = useState({
+    rating: "",
+    detailed_feedback: "",
+    experience_date: "",
+    location: "",
   });
 
-  const [complaints, setComplaints] = useState([]);
-  const [userFeedback, setUserFeedback] = useState([]);
-  const [searchCategory, setSearchCategory] = useState("");
-  const [activeTab, setActiveTab] = useState("complaints");
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editingFeedback, setEditingFeedback] = useState(null);
-
-  const fetchComplaints = async (category = "") => {
+  // --- Fetch User Profile ---
+  const fetchUserProfile = async () => {
     try {
-      const url = category
-        ? `http://localhost:7500/api/complaints?category=${category}`
-        : "http://localhost:7500/api/complaints";
-
-      const res = await fetch(url);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      const res = await fetch("http://localhost:7500/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (res.ok) {
-        setComplaints(data);
-      } else {
-        console.error("Error fetching complaints:", data.message);
-      }
+        setUser(data);
+        setFormUser(data);
+      } else console.error("Failed to load user:", data.message);
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("User fetch error:", err);
     }
   };
 
-  const fetchUserFeedback = async () => {
+  // --- Fetch Complaints ---
+  const fetchUserComplaints = async () => {
     try {
-      const userId = "temp_user_id";
-      const res = await fetch(`http://localhost:7500/api/feedback/user/${userId}`);
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const res = await fetch("http://localhost:7500/api/complaints/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
-      if (res.ok && data.success) {
-        setUserFeedback(data.feedback);
-      } else {
-        console.error("Error fetching feedback:", data.message);
-      }
+      if (res.ok) setComplaints(data);
     } catch (err) {
-      console.error("Error fetching feedback:", err);
+      console.error("Complaint fetch error:", err);
+    }
+  };
+
+  // --- Fetch Feedbacks ---
+  const fetchUserFeedbacks = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const res = await fetch("http://localhost:7500/api/feedback/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) setFeedbacks(data);
+    } catch (err) {
+      console.error("Feedback fetch error:", err);
     }
   };
 
   useEffect(() => {
-    fetchComplaints();
-    fetchUserFeedback();
+    fetchUserProfile();
+    fetchUserComplaints();
+    fetchUserFeedbacks();
   }, []);
 
-  const handleSearchChange = (e) => {
-    setSearchCategory(e.target.value.toLowerCase());
+  // --- Profile Edit Handlers ---
+  const handleUserChange = (e) => {
+    const { name, value } = e.target;
+    setFormUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearchClick = () => {
-    fetchComplaints(searchCategory.trim());
-  };
-
-  const handleDeleteComplaint = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this complaint?")) return;
+  const handleSaveProfile = async () => {
     try {
-      const res = await fetch(`http://localhost:7500/api/complaints/${id}`, {
-        method: "DELETE",
+      const token = localStorage.getItem("token");
+      if (!token) return alert("Login required.");
+      const res = await fetch(`http://localhost:7500/api/users/${user._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formUser),
       });
+      const data = await res.json();
       if (res.ok) {
-        setComplaints((prev) => prev.filter((c) => c._id !== id));
-        alert("Complaint deleted successfully.");
-      } else {
-        alert("Failed to delete complaint.");
-      }
+        setUser(data);
+        setEditMode(false);
+        alert("Profile updated!");
+      } else alert(data.message || "Update failed.");
     } catch (err) {
-      console.error("Error deleting complaint:", err);
+      console.error("Error updating profile:", err);
     }
   };
 
-  const handleDeleteFeedback = async (feedbackId) => {
-    if (!window.confirm("Are you sure you want to delete this feedback?")) return;
+  // --- Complaint Actions ---
+  const handleDeleteSubmission = async (id, type) => {
+    const endpoint = type === "complaint" ? "complaints" : "feedback";
+    if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
     try {
-      const res = await fetch(`http://localhost:7500/api/feedback/${feedbackId}`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:7500/api/${endpoint}/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        setUserFeedback((prev) => prev.filter((f) => f._id !== feedbackId));
-        alert("Feedback deleted successfully.");
-        fetchUserFeedback();
-      } else {
-        alert("Failed to delete feedback.");
+        if (type === "complaint") setComplaints((p) => p.filter((c) => c._id !== id));
+        else setFeedbacks((p) => p.filter((f) => f._id !== id));
+        alert(`${type} deleted successfully.`);
       }
     } catch (err) {
-      console.error("Error deleting feedback:", err);
+      console.error(`Error deleting ${type}:`, err);
     }
   };
 
-  const handleEditComplaint = (complaint) => {
-    navigate("/post-complaint", { state: { complaint } });
+  const handleEditSubmission = (item, type) => {
+    navigate("/post-complaint", { state: { [type]: item } });
   };
 
-  const handleEditFeedback = (feedback) => {
-    setShowEditForm(true);
-    setEditingFeedback(feedback);
+  // --- Feedback Form Logic ---
+  const openFeedbackForm = (complaint) => {
+    setSelectedComplaint(complaint);
+    setShowFeedbackForm(true);
   };
 
-  // ✅ SIMPLE VERSION - No API calls
-  const getFeedbackForComplaint = (complaintId) => {
-    return userFeedback.find(f => f.reference_id === complaintId);
+  const closeFeedbackForm = () => {
+    setSelectedComplaint(null);
+    setShowFeedbackForm(false);
+    setFeedbackForm({
+      rating: "",
+      detailed_feedback: "",
+      experience_date: "",
+      location: "",
+    });
   };
 
-  const handleFeedbackSubmitted = () => {
-    fetchUserFeedback();
+  const handleFeedbackChange = (e) => {
+    const { name, value } = e.target;
+    setFeedbackForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCloseEditForm = () => {
-    setShowEditForm(false);
-    setEditingFeedback(null);
-    handleFeedbackSubmitted();
+  const submitFeedback = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return alert("Login required.");
+
+      const payload = {
+        complaint: selectedComplaint._id,
+        rating: feedbackForm.rating,
+        detailed_feedback: feedbackForm.detailed_feedback,
+        experience_date: feedbackForm.experience_date,
+        location: feedbackForm.location,
+        feedback_type: "complaint",
+      };
+
+      const res = await fetch("http://localhost:7500/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Feedback submitted successfully!");
+        closeFeedbackForm();
+        fetchUserFeedbacks(); // refresh immediately
+      } else alert(data.message || "Failed to submit feedback.");
+    } catch (err) {
+      console.error("Feedback submission error:", err);
+    }
+  };
+
+  if (!user)
+    return (
+      <div className="stunning-loading">
+        <MdDashboard /> Awaiting Data Feed...
+      </div>
+    );
+
+  // --- Table Component ---
+  const SubmissionTable = ({ data, type, title }) => (
+    <section className="dashboard-module submissions-module-stunning">
+      <div className="module-header-stunning">
+        <h2 className="module-title-stunning">
+          <MdOutlineReceipt /> {title} LOG
+        </h2>
+        <span className="count-display">TOTAL: {data.length}</span>
+      </div>
+      {data.length === 0 ? (
+        <p className="empty-state-stunning">
+          NO {type.toUpperCase()} DATA FOUND.
+        </p>
+      ) : (
+        <div className="table-wrapper-stunning">
+          <table className="data-table-stunning">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Complaint ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Controls</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, i) => (
+                <tr key={item._id}>
+                  <td>{i + 1}</td>
+                  <td>{item.complaintId || "N/A"}</td>
+                  <td>{item.title}</td>
+                  <td>
+                    {Array.isArray(item.category)
+                      ? item.category.join(", ")
+                      : item.category}
+                  </td>
+                  <td>
+                    <span
+                      className={`status-tag status-${item.status
+                        ?.toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
+                  <td>{new Date(item.createdAt).toLocaleDateString()}</td>
+                  <td className="action-column-stunning">
+                    <button
+                      className="action-btn edit"
+                      onClick={() => handleEditSubmission(item, type)}
+                    >
+                      <MdEdit /> Edit
+                    </button>
+                    <button
+                      className="action-btn delete"
+                      onClick={() => handleDeleteSubmission(item._id, type)}
+                    >
+                      <MdDelete /> Delete
+                    </button>
+                    <button
+                      className="action-btn feedback"
+                      onClick={() => openFeedbackForm(item)}
+                    >
+                      <MdFeedback /> Feedback
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+
+  const renderContent = () => {
+    switch (currentView) {
+      case "OVERVIEW":
+        return (
+          <div className="dashboard-module profile-module-stunning overview-content">
+            <h2 className="module-title-stunning">
+              <MdViewAgenda /> DASHBOARD OVERVIEW
+            </h2>
+            <p className="empty-state-stunning" style={{ border: "none" }}>
+              Welcome, {user.fullName}! Here's a quick summary of your activity.
+            </p>
+            <ul className="overview-stats">
+              <li>Total Complaints: {complaints.length}</li>
+              <li>Total Feedbacks: {feedbacks.length}</li>
+            </ul>
+          </div>
+        );
+      case "PROFILE":
+        return (
+          <section className="dashboard-module profile-module-stunning">
+            <div className="module-header-stunning">
+              <h2 className="module-title-stunning">
+                <MdAccountCircle /> PROFILE DATA STREAM
+              </h2>
+              <button
+                className={`control-button ${
+                  editMode ? "btn-cancel-stunning" : "btn-edit-stunning"
+                }`}
+                onClick={() => setEditMode(!editMode)}
+              >
+                {editMode ? (
+                  <>
+                    <MdCancel /> ABORT
+                  </>
+                ) : (
+                  <>
+                    <MdEdit /> EDIT MODE
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="profile-data-grid">
+              {Object.entries(formUser).map(([key, value]) => (
+                <div key={key} className="data-field-group">
+                  <label className="field-label-stunning">
+                    {key.replace(/([A-Z])/g, " $1").toUpperCase()}
+                  </label>
+                  {editMode && !["userId", "email", "role"].includes(key) ? (
+                    <input
+                      type="text"
+                      name={key}
+                      value={value || ""}
+                      onChange={handleUserChange}
+                      className="data-input-stunning editable-input"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={Array.isArray(value) ? value.join(", ") : value || ""}
+                      readOnly
+                      className="data-input-stunning"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            {editMode && (
+              <div className="save-footer-stunning">
+                <button
+                  className="control-button btn-save-stunning"
+                  onClick={handleSaveProfile}
+                >
+                  <MdSave /> SAVE CHANGES
+                </button>
+              </div>
+            )}
+          </section>
+        );
+      case "COMPLAINTS":
+        return (
+          <SubmissionTable
+            data={complaints}
+            type="complaint"
+            title="COMPLAINT HISTORY"
+          />
+        );
+      case "FEEDBACKS":
+        return (
+          <SubmissionTable
+            data={feedbacks}
+            type="feedback"
+            title="FEEDBACK HISTORY"
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="dashboard-page">
-      <header className="dashboard-header">
-        <FaUserCircle className="avatar-large" />
-        <div className="header-text">
-          <h1>Hi, {user.fullName} 👋</h1>
-          <p>Welcome to your dashboard</p>
+    <div className="stunning-dashboard-container">
+      <header className="stunning-header">
+        <MdDashboard className="header-icon" />
+        <div className="header-content">
+          <h1 className="header-title-stunning">
+            {user.fullName.toUpperCase()} CITIZEN DASHBOARD
+          </h1>
+          <p className="header-subtitle-stunning">
+            ACCESS LEVEL:{" "}
+            <span className="highlight-text">{user.role.toUpperCase()}</span>
+          </p>
         </div>
       </header>
 
-      <section className="user-section">
-        <div className="section-header">
-          <h2>USER DETAILS</h2>
-        </div>
-        <div className="user-details">
-          {Object.entries(user).map(([key, value]) => (
-            <div className="detail-row" key={key}>
-              <label>{key.replace(/([A-Z])/g, " $1").toUpperCase()}</label>
-              {Array.isArray(value) ? (
-                <input type="text" name={key} value={value.join(", ")} readOnly className="read-only" />
-              ) : (
-                <input type={typeof value === "number" ? "number" : "text"} name={key} value={value} readOnly className="read-only" />
-              )}
+      <nav className="dashboard-navbar">
+        <button
+          className={`nav-link ${
+            currentView === "OVERVIEW" ? "active-nav-link" : ""
+          }`}
+          onClick={() => setCurrentView("OVERVIEW")}
+        >
+          <MdViewAgenda /> OVERVIEW
+        </button>
+        <button
+          className={`nav-link ${
+            currentView === "PROFILE" ? "active-nav-link" : ""
+          }`}
+          onClick={() => setCurrentView("PROFILE")}
+        >
+          <MdAccountCircle /> PROFILE
+        </button>
+        <button
+          className={`nav-link ${
+            currentView === "COMPLAINTS" ? "active-nav-link" : ""
+          }`}
+          onClick={() => setCurrentView("COMPLAINTS")}
+        >
+          <MdOutlineReceipt /> COMPLAINTS
+        </button>
+        <button
+          className={`nav-link ${
+            currentView === "FEEDBACKS" ? "active-nav-link" : ""
+          }`}
+          onClick={() => setCurrentView("FEEDBACKS")}
+        >
+          <MdFeedback /> FEEDBACKS
+        </button>
+      </nav>
+
+      <div className="dashboard-content-area">{renderContent()}</div>
+
+      {showFeedbackForm && (
+        <div className="feedback-modal-overlay">
+          <div className="feedback-modal">
+            <h2>
+              <MdFeedback /> GIVE FEEDBACK
+            </h2>
+            <p>
+              Complaint: <strong>{selectedComplaint?.title}</strong>
+              <br />
+              Complaint ID: {selectedComplaint?.complaintId}
+            </p>
+
+            <div className="modal-form-group">
+              <label>Rating (1–5)</label>
+              <input
+                type="number"
+                name="rating"
+                min="1"
+                max="5"
+                value={feedbackForm.rating}
+                onChange={handleFeedbackChange}
+              />
             </div>
-          ))}
-        </div>
-      </section>
 
-      <section className="content-section">
-        <div className="section-tabs">
-          <button className={`tab-button ${activeTab === "complaints" ? "active" : ""}`} onClick={() => setActiveTab("complaints")}>
-            Your Complaints ({complaints.length})
-          </button>
-          <button className={`tab-button ${activeTab === "feedback" ? "active" : ""}`} onClick={() => setActiveTab("feedback")}>
-            Your Feedback ({userFeedback.length})
-          </button>
-        </div>
-
-        {activeTab === "complaints" && (
-          <div className="tab-content">
-            <div className="search-bar">
-              <input type="text" placeholder="Search by category" value={searchCategory} onChange={handleSearchChange} className="search-input" />
-              <button className="search-button" onClick={handleSearchClick}>Search</button>
+            <div className="modal-form-group">
+              <label>Experience Date</label>
+              <input
+                type="date"
+                name="experience_date"
+                value={feedbackForm.experience_date}
+                onChange={handleFeedbackChange}
+              />
             </div>
 
-            {complaints.length === 0 ? (
-              <p className="no-data">No complaints found.</p>
-            ) : (
-              <table className="complaints-table">
-                <thead>
-                  <tr>
-                    <th>#</th><th>Complaint</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th><th>Feedback</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {complaints.map((c, i) => {
-                    const complaintFeedback = getFeedbackForComplaint(c._id);
-                    return (
-                      <tr key={c._id}>
-                        <td>{i + 1}</td>
-                        <td>{c.title}</td>
-                        <td>{Array.isArray(c.category) ? c.category.join(", ") : c.category}</td>
-                        <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-                        <td className={`status ${c.status?.toLowerCase().replace(" ", "-")}`}>{c.status || "Pending"}</td>
-                        <td className="action-buttons">
-                          <button className="edit-btn" onClick={() => handleEditComplaint(c)}><MdEdit /> Edit</button>
-                          <button className="delete-btn" onClick={() => handleDeleteComplaint(c._id)}><MdDelete /> Delete</button>
-                        </td>
-                        <td className="feedback-cell">
-                          {complaintFeedback ? (
-                            <div className="feedback-actions-row">
-                              <button className="view-feedback-btn" onClick={() => handleEditFeedback(complaintFeedback)}>👁️ View/Edit</button>
-                              <button className="delete-feedback-btn" onClick={() => handleDeleteFeedback(complaintFeedback._id)}><FaTrash /> Delete</button>
-                            </div>
-                          ) : (
-                            <FeedbackButton user={user} complaint={c} compact={true} onFeedbackSubmitted={handleFeedbackSubmitted} />
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
+            <div className="modal-form-group">
+              <label>Location</label>
+              <input
+                type="text"
+                name="location"
+                value={feedbackForm.location}
+                onChange={handleFeedbackChange}
+              />
+            </div>
+
+            <div className="modal-form-group">
+              <label>Detailed Feedback</label>
+              <textarea
+                name="detailed_feedback"
+                rows="4"
+                value={feedbackForm.detailed_feedback}
+                onChange={handleFeedbackChange}
+                placeholder="Write your experience..."
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={submitFeedback} className="btn-submit-feedback">
+                <MdSave /> SUBMIT
+              </button>
+              <button onClick={closeFeedbackForm} className="btn-cancel-feedback">
+                <MdCancel /> CANCEL
+              </button>
+            </div>
           </div>
-        )}
-
-        {activeTab === "feedback" && (
-          <div className="tab-content">
-            <div className="feedback-header-actions">
-              <h3>Your Submitted Feedback</h3>
-              <p className="feedback-help">Manage your submitted feedback here</p>
-            </div>
-            {userFeedback.length === 0 ? (
-              <div className="no-feedback">
-                <p>You haven't submitted any feedback yet.</p>
-                <p>Submit feedback for your complaints to see them here.</p>
-              </div>
-            ) : (
-              <div className="feedback-list">
-                {userFeedback.map((feedback) => (
-                  <div key={feedback._id} className="feedback-card">
-                    <div className="feedback-header">
-                      <div className="feedback-title">
-                        <h4>{feedback.feedback_type.replace(/_/g, ' ').toUpperCase()} Feedback</h4>
-                        <span className="feedback-date">{new Date(feedback.createdAt).toLocaleDateString()}</span>
-                        {feedback.reference_id && <span className="feedback-reference">Complaint ID: {feedback.reference_id}</span>}
-                      </div>
-                      <div className="feedback-rating">
-                        <span className="rating-stars">{"⭐".repeat(feedback.rating)}</span>
-                        <span className="rating-text">({feedback.rating}/5)</span>
-                      </div>
-                    </div>
-                    <div className="feedback-content">
-                      <p className="feedback-message">{feedback.detailed_feedback}</p>
-                      {feedback.feedback_categories && feedback.feedback_categories.length > 0 && (
-                        <div className="feedback-categories"><strong>Categories:</strong> {feedback.feedback_categories.map(cat => cat.replace(/_/g, ' ')).join(', ')}</div>
-                      )}
-                      {feedback.suggestions && <div className="feedback-suggestions"><strong>Suggestions:</strong> {feedback.suggestions}</div>}
-                    </div>
-                    <div className="feedback-actions">
-                      <button className="edit-feedback-btn" onClick={() => handleEditFeedback(feedback)}><FaEdit /> Edit</button>
-                      <button className="delete-feedback-btn" onClick={() => handleDeleteFeedback(feedback._id)}><FaTrash /> Delete</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </section>
-
-      {showEditForm && <FeedbackForm user={user} complaint={null} onClose={handleCloseEditForm} editMode={true} existingFeedback={editingFeedback} />}
+        </div>
+      )}
     </div>
   );
-};
-
-export default UserDashboard;
+}

@@ -1,9 +1,7 @@
 const Complaint = require("../models/complaints");
 const User = require("../models/user");
 
-/**
- * 🆕 Create a new complaint (linked to logged-in user)
- */
+
 exports.createComplaint = async (req, res) => {
   try {
     const {
@@ -17,8 +15,6 @@ exports.createComplaint = async (req, res) => {
     } = req.body;
 
     const image = req.file ? req.file.path : "";
-
-    // ✅ Get user from auth middleware
     const user = req.user;
     if (!user) {
       return res.status(401).json({ message: "Unauthorized user" });
@@ -33,7 +29,7 @@ if (lastComplaint && lastComplaint.complaintId) {
 }
 
 const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
-    // 📝 Create new complaint linked to user
+    
     const complaint = new Complaint({
       complaintId,
       title,
@@ -44,7 +40,7 @@ const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
       days,
       image,
       location,
-      user: user._id, // Link logged-in user's ObjectId
+      user: user._id, 
     });
 
     await complaint.save();
@@ -54,14 +50,12 @@ const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
       complaint,
     });
   } catch (err) {
-    console.error("❌ Error creating complaint:", err);
+    console.error("Error creating complaint:", err);
     res.status(500).json({ message: "Server error while creating complaint" });
   }
 };
 
-/**
- * 📋 Get all complaints (with user details)
- */
+
 exports.getAllComplaints = async (req, res) => {
   try {
     const { category } = req.query;
@@ -72,19 +66,17 @@ exports.getAllComplaints = async (req, res) => {
     }
 
     const complaints = await Complaint.find(filter)
-      .populate("user", "userId fullName email role location") // Join user info
+      .populate("user", "userId fullName email role location") 
       .sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (err) {
-    console.error("❌ Error fetching complaints:", err);
+    console.error("Error fetching complaints:", err);
     res.status(500).json({ message: "Server error fetching complaints" });
   }
 };
 
-/**
- * 🔍 Get a single complaint by ID (with user info)
- */
+
 exports.getComplaintById = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
@@ -96,14 +88,12 @@ exports.getComplaintById = async (req, res) => {
 
     res.status(200).json(complaint);
   } catch (err) {
-    console.error("❌ Error fetching complaint by ID:", err);
+    console.error("Error fetching complaint by ID:", err);
     res.status(500).json({ message: "Server error fetching complaint" });
   }
 };
 
-/**
- * 👤 Get complaints submitted by the logged-in user
- */
+
 exports.getMyComplaints = async (req, res) => {
   try {
     const user = req.user;
@@ -116,14 +106,11 @@ exports.getMyComplaints = async (req, res) => {
 
     res.status(200).json(complaints);
   } catch (err) {
-    console.error("❌ Error fetching user's complaints:", err);
+    console.error("Error fetching user's complaints:", err);
     res.status(500).json({ message: "Server error fetching user complaints" });
   }
 };
 
-/**
- * ✏️ Update complaint by ID
- */
 exports.updateComplaint = async (req, res) => {
   try {
     const updatedComplaint = await Complaint.findByIdAndUpdate(
@@ -144,14 +131,12 @@ exports.updateComplaint = async (req, res) => {
       complaint: updatedComplaint,
     });
   } catch (err) {
-    console.error("❌ Error updating complaint:", err);
+    console.error("Error updating complaint:", err);
     res.status(500).json({ message: "Server error updating complaint" });
   }
 };
 
-/**
- * 🗑️ Delete complaint by ID
- */
+
 exports.deleteComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findByIdAndDelete(req.params.id);
@@ -162,7 +147,7 @@ exports.deleteComplaint = async (req, res) => {
 
     res.status(200).json({ message: "Complaint deleted successfully" });
   } catch (err) {
-    console.error("❌ Error deleting complaint:", err);
+    console.error("Error deleting complaint:", err);
     res.status(500).json({ message: "Server error deleting complaint" });
   }
 };

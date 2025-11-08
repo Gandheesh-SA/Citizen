@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MdTitle, MdDescription, MdCategory, MdTimer } from "react-icons/md";
 import { FaMapMarkerAlt, FaImage } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../styles/post_complaint.css";
+import "../../styles/post_complaint.css";
 
 export default function PostComplaint() {
   const navigate = useNavigate();

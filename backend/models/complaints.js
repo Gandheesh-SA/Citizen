@@ -43,10 +43,9 @@ const complaintSchema = new mongoose.Schema(
       default: "Pending",
     },
 
-    // 👇 Add user reference here
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // References the 'User' model
+      ref: "User", 
       required: true,
     },
   },

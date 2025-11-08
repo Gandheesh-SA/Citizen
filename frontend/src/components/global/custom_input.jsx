@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/custominput.css";
+import "../../styles/custominput.css";
 
 const CustomInput = ({
   label,

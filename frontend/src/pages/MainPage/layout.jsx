@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/layout.css";
+import "../../styles/layout.css";
 import Sidebar from "../../components/main/side_navabar";
 import { Outlet, useLocation } from "react-router-dom";
 

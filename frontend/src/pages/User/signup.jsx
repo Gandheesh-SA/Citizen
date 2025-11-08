@@ -7,7 +7,7 @@ import { Link, useNavigate,  } from "react-router-dom";
 
 import CustomInput from "../../components/global/custom_input.jsx";
 import Button from "../../components/global/button.jsx";
-import "../styles/auth.css";
+import "../../styles/auth.css";
 
 export default function SignUp() {
   const navigate = useNavigate();
