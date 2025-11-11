@@ -5,6 +5,10 @@
   - CRUCIAL FIX: Fully responsive, stackable table to eliminate all horizontal scrolling.
 */
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --highlight-color: #005b5f; /* Your specified color: Deep Teal */
   --background-primary: #f8f9fa; /* Stark White/Off-White */
@@ -39,6 +43,7 @@ body {
   margin: 0 auto;
   padding: 0 2rem 4rem 2rem;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 /* --- Header Section (The Authority Bar) --- */
@@ -282,7 +287,7 @@ body {
 
 /* --- Table Styles (Highly Structured) --- */
 .table-wrapper-stunning {
-  /* Removed: overflow-x: auto; to rely entirely on stacking */
+ overflow-x: clip;
   max-width: 100%;
 }
 
@@ -459,7 +464,7 @@ body {
         margin-bottom: 2rem;
         padding: 1rem 0.5rem;
         border: var(--border-sharp);
-        box-shadow: var(--shadow-key);
+        box-shadow: none;
     }
     .data-table-stunning td {
         position: relative;
@@ -635,4 +640,298 @@ body {
   padding: 0.7rem 1rem;
   font-weight: 600;
   border-left: 5px solid #005b5f;
+}
+
+
+/* ---------- Premium Light + Green Modal ---------- */
+.feedback-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.feedback-modal.premium-green {
+  width: 100%;
+  max-width: 980px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(6, 95, 70, 0.08);
+  padding: 20px 22px;
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: modalPop 240ms ease;
+}
+
+/* header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-icon {
+  background: #ecfdf5;
+  color: #047857;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.modal-title-strong {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #475569;
+  cursor: pointer;
+}
+
+/* subtitle */
+.modal-sub {
+  color: #4b5563;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+/* grid layout */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 18px;
+}
+
+/* fallback to single column on small screens */
+@media (max-width: 880px) {
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* columns */
+.modal-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* fields */
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-weight: 700;
+  color: #064e3b;
+  font-size: 0.95rem;
+}
+
+.field-input,
+.field-select,
+.field-textarea {
+  border: 1px solid #e6eef0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+  box-shadow: none;
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  box-shadow: 0 6px 18px rgba(6, 95, 70, 0.08);
+  border-color: rgba(5, 150, 105, 0.18);
+}
+
+.field-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* pill style */
+.pill-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  background: #f8faf9;
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 8px 14px;
+  border: 1px solid rgba(6, 95, 70, 0.04);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: all 180ms ease;
+}
+
+.pill:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(6, 95, 70, 0.04);
+}
+
+.pill-active {
+  background: linear-gradient(180deg, #ecfdf5 0%, #bbf7d0 100%);
+  color: #045e3a;
+  border-color: rgba(5, 150, 105, 0.18);
+  box-shadow: 0 10px 30px rgba(6, 95, 70, 0.06);
+}
+
+/* row halves */
+.modal-row {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-row .half {
+  flex: 1;
+}
+
+/* dial column */
+.dial-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* card around dial */
+.dial-card {
+  width: 100%;
+  max-width: 320px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fffb 100%);
+  border: 1px solid #e6f6ee;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 10px 30px rgba(6, 95, 70, 0.03);
+}
+
+/* svg sizing */
+.dial-svg {
+  width: 120px;
+  height: 120px;
+}
+
+.dial-back {
+  stroke: #eef7f2;
+}
+
+.dial-progress {
+  stroke-dasharray: 276.460; /* 2*pi*44 approx */
+  stroke-dashoffset: 276.460;
+  transition: stroke-dashoffset 400ms ease;
+}
+
+/* dial controls (plus/minus) */
+.dial-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.dial-btn {
+  background: #ffffff;
+  border: 1px solid #e6f6ee;
+  color: #064e3b;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(6, 95, 70, 0.03);
+}
+
+.dial-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* invisible range (keyboard accessible) */
+.invisible-range {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: auto;
+}
+
+/* actions */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.modal-actions-right {
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(5, 150, 105, 0.15);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(5, 150, 105, 0.18);
+}
+
+.btn-ghost {
+  background: #f8fafc;
+  color: #0f172a;
+  border: 1px solid #e6eef0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* animation */
+@keyframes modalPop {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

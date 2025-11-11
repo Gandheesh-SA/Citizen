@@ -8,7 +8,7 @@
 
 /* SIDEBAR CONTAINER */
 .sidebar {
-  width: 270px;
+  width: 220px;
   height: 100vh;
   background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
   display: flex;

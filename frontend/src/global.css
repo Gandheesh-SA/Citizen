@@ -1,0 +1,15 @@
+html, body {
+  height: auto;
+  overflow-y: auto !important;
+}
+
+.stunning-dashboard-container,
+.homepage-container {
+  overflow-y: visible !important;
+  height: auto !important;
+}
+
+.complaint-modal-overlay,
+.feedback-modal-overlay {
+  overflow-y: auto !important;
+}

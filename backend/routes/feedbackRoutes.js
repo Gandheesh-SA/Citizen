@@ -5,19 +5,26 @@ const {
   createFeedback,
   getAllFeedback,
   getFeedbackByComplaint,
-  getFeedbackByUser
+  getFeedbackByUser,
+  updateFeedback,
+  deleteFeedback,
 } = require("../controllers/feedbackController");
 
-// 🧾 Create feedback (linked to user + complaint)
+
 router.post("/", auth, createFeedback);
 
-// 🧠 Get all feedbacks (Admin or testing)
+
 router.get("/", getAllFeedback);
 
-// 📍 Get feedback for a specific complaint
+
 router.get("/complaint/:complaintId", getFeedbackByComplaint);
 
-// 👤 Get feedbacks for logged-in user
+
 router.get("/my", auth, getFeedbackByUser);
+
+router.put("/:id", auth, updateFeedback)
+
+router.delete("/:id", auth, deleteFeedback);
+
 
 module.exports = router;
