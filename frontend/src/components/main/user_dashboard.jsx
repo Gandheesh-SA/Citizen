@@ -74,6 +74,92 @@ export default function UserDashboard() {
   const [announcements, setAnnouncements] = useState([]); // all announcements (server)
   const [myAnnouncements, setMyAnnouncements] = useState([]); // filtered for user
 
+  const [adminCommunities, setAdminCommunities] = useState([]);
+const [memberCommunities, setMemberCommunities] = useState([]);
+
+// FEEDBACK MODAL STATES
+const [fbDays, setFbDays] = useState("");
+const [fbRating, setFbRating] = useState(5);
+const [fbMood, setFbMood] = useState("happy"); // happy | neutral | sad
+const [fbResolved, setFbResolved] = useState(true);
+const [fbPending, setFbPending] = useState("");
+const [fbDetails, setFbDetails] = useState("");
+const [fbImage, setFbImage] = useState(null);
+const [fbImagePreview, setFbImagePreview] = useState("/mnt/data/Screenshot 2025-11-20 at 9.38.37 PM.png");
+
+const handleFbImage = (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (!["image/png", "image/jpeg"].includes(file.type)) {
+    alert("Only JPG/PNG allowed");
+    return;
+  }
+
+  setFbImage(file);
+  setFbImagePreview(URL.createObjectURL(file));
+};
+const handleSubmitNewFeedback = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Login required.");
+
+    if (!selectedComplaint) return alert("No complaint selected.");
+
+    // VALIDATION
+    if (!fbDays || fbDays < 0) return alert("Enter valid number of days.");
+    if (!fbRating) return alert("Rating required.");
+    if (!fbMood) return alert("Satisfaction required.");
+    if (fbResolved === false && fbPending.trim().length < 5)
+      return alert("Describe what is pending.");
+
+    if (fbDetails.trim().length < 20)
+      return alert("Detailed feedback must be at least 20 characters.");
+
+    // PAYLOAD
+    const payload = {
+      complaint: selectedComplaint._id,
+      daysTaken: fbDays,
+      rating: fbRating,
+      satisfaction: fbMood,
+      resolved: fbResolved,
+      pendingIssue: fbResolved ? "" : fbPending,
+      detailedFeedback: fbDetails,
+    };
+
+    const url = feedbackForm?._id
+      ? `http://localhost:7500/api/feedback/${feedbackForm._id}`
+      : `http://localhost:7500/api/feedback`;
+
+    const method = feedbackForm?._id ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Feedback failed");
+
+    alert("Feedback submitted successfully!");
+
+    // refresh your feedback list
+    fetchUserFeedbacks();
+    setShowFeedbackForm(false);
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
+
+
+
   const [currentView, setCurrentView] = useState("OVERVIEW");
 const [activity, setActivity] = useState({ comments: 0, upvotes: 0 });
 
@@ -108,6 +194,81 @@ const [activity, setActivity] = useState({ comments: 0, upvotes: 0 });
   // -------------------------
   // Fetch helpers
   // -------------------------
+
+  const fetchMyCommunities = useCallback(async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await fetch("http://localhost:7500/api/communities", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    if (!res.ok) return;
+
+    const all = data.communities;
+
+    setAdminCommunities(
+      all.filter((c) => c.createdBy?._id === user._id)
+    );
+
+    setMemberCommunities(
+      all.filter((c) => c.members?.includes(user._id) && c.createdBy?._id !== user._id)
+    );
+
+  } catch (err) {
+    console.error("Community fetch error:", err);
+  }
+}, [user]);
+
+useEffect(() => {
+  if (user) fetchMyCommunities();
+}, [user])
+
+const deleteCommunity = async (id) => {
+  if (!window.confirm("Delete this community?")) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`http://localhost:7500/api/communities/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    if (!res.ok) return alert(data.message);
+
+    alert("Community deleted");
+    fetchMyCommunities();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const leaveCommunity = async (id) => {
+  if (!window.confirm("Leave this community?")) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`http://localhost:7500/api/communities/${id}/leave`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    if (!res.ok) return alert(data.message);
+
+    alert("Left community successfully");
+    fetchMyCommunities();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
   const fetchUserProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -512,32 +673,51 @@ useEffect(() => {
                       </td>
                       <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td className="action-column-stunning">
-                      {item.status?.toLowerCase() !== "accepted" && (
-                          <>
-                            <button className="action-btn edit" onClick={() => handleEditSubmission(item, "complaint")}>
-                              <MdEdit /> Edit
-                            </button>
-                            <button className="action-btn delete" onClick={() => handleDeleteSubmission(item._id, "complaint")}>
-                              <MdDelete /> Delete
-                            </button>
-                          </>
-                        )}
-                        {item.status?.toLowerCase() === "resolved" ? (
-                          !feedbacks.some((f) => f.complaint?._id === item._id) ? (
-                            <button className="action-btn feedback" onClick={() => openFeedbackForm(item)}>
-                              <MdFeedback /> Feedback
-                            </button>
-                          ) : (
-                            <button className="action-btn feedback disabled" disabled>
-                              <MdFeedback /> Feedback Given
-                            </button>
-                          )
-                        ) : (
-                          <button className="action-btn feedback disabled" disabled title="Feedback available only for resolved complaints">
-                            <MdFeedback /> Feedback (Pending)
-                          </button>
-                        )}
-                      </td>
+
+ 
+  {item.status?.toLowerCase() === "pending" && (
+    <>
+      <button
+        className="action-btn edit"
+        onClick={() => handleEditSubmission(item, "complaint")}
+      >
+        <MdEdit /> Edit
+      </button>
+
+      <button
+        className="action-btn delete"
+        onClick={() => handleDeleteSubmission(item._id, "complaint")}
+      >
+        <MdDelete /> Delete
+      </button>
+    </>
+  )}
+
+  {/* -------------------------- */}
+  {/* FEEDBACK LOGIC             */}
+  {/* -------------------------- */}
+
+  {item.status?.toLowerCase() === "resolved" ? (
+    // If resolved, check if feedback already exists
+    !feedbacks.some((f) => f.complaint?._id === item._id) ? (
+      <button
+        className="action-btn feedback"
+        onClick={() => openFeedbackForm(item)}
+      >
+        <MdFeedback /> Feedback
+      </button>
+    ) : (
+      <button className="action-btn feedback disabled" disabled>
+        <MdFeedback /> Feedback Given
+      </button>
+    )
+  ) : (
+    // For all other states: pending, in progress, accepted, rejected
+    <button className="action-btn feedback disabled" disabled>
+      <MdFeedback /> Feedback (Pending)
+    </button>
+  )}
+</td>
                     </tr>
                   );
                 }
@@ -1114,6 +1294,9 @@ const renderActivity = () => (
           ...announcements.filter((a) => !myAnnouncements.some((m) => m._id === a._id)),
         ];
         return <SubmissionTable data={sorted} type="announcement" title="ANNOUNCEMENTS" />;
+      case "COMMUNITY":
+  return renderCommunity();
+
       case "ACTIVITY":
   return renderActivity();
 
@@ -1121,6 +1304,85 @@ const renderActivity = () => (
         return null;
     }
   };
+
+  const renderCommunity = () => (
+  <section className="dashboard-module submissions-module-stunning">
+    <div className="module-header-stunning">
+      <h2 className="module-title-stunning">🏘 YOUR COMMUNITIES</h2>
+    </div>
+
+    {/* ADMIN COMMUNITIES */}
+    <h3 className="sub-section-title">Communities You Manage</h3>
+    <div className="table-wrapper-stunning">
+      <table className="data-table-stunning">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Members</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {adminCommunities.length === 0 ? (
+            <tr><td colSpan="6" className="empty-state-stunning">You are not admin of any community.</td></tr>
+          ) : (
+            adminCommunities.map((c) => (
+              <tr key={c._id}>
+                <td>{c.name}</td>
+                <td>{c.category}</td>
+                <td>{c.description}</td>
+                <td>{c.members?.length || 0}</td>
+                <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td>
+                  <button className="action-btn delete" onClick={() => deleteCommunity(c._id)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    {/* MEMBER COMMUNITIES */}
+    <h3 className="sub-section-title" style={{ marginTop: 40 }}>Communities You Joined</h3>
+    <div className="table-wrapper-stunning">
+      <table className="data-table-stunning">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Admin</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {memberCommunities.length === 0 ? (
+            <tr><td colSpan="5" className="empty-state-stunning">You have not joined any community.</td></tr>
+          ) : (
+            memberCommunities.map((c) => (
+              <tr key={c._id}>
+                <td>{c.name}</td>
+                <td>{c.category}</td>
+                <td>{c.description}</td>
+                <td>{c.createdBy?.fullName}</td>
+                <td>
+                  <button className="action-btn delete" onClick={() => leaveCommunity(c._id)}>Leave</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
+
 
   return (
     <div className="stunning-dashboard-container">
@@ -1147,6 +1409,13 @@ const renderActivity = () => (
         <button className={`nav-link ${currentView === "FEEDBACKS" ? "active-nav-link" : ""}`} onClick={() => setCurrentView("FEEDBACKS")}>
           <MdFeedback /> FEEDBACKS
         </button>
+        <button
+  className={`nav-link ${currentView === "COMMUNITY" ? "active-nav-link" : ""}`}
+  onClick={() => setCurrentView("COMMUNITY")}
+>
+  🏘 COMMUNITIES
+</button>
+
         <button className={`nav-link ${currentView === "ANNOUNCEMENTS" ? "active-nav-link" : ""}`} onClick={() => setCurrentView("ANNOUNCEMENTS")}>
           📢 ANNOUNCEMENTS
         </button>
@@ -1160,30 +1429,103 @@ const renderActivity = () => (
 
       <div className="dashboard-content-area">{renderContent()}</div>
 
-      {/* Feedback form popup */}
-      {showFeedbackForm && (
-        <div className="feedback-modal">
-          <div className="feedback-panel">
-            <h3>Feedback for: {selectedComplaint?.title}</h3>
-            <label>
-              Category:
-              <input name="feedback_category" value={feedbackForm.feedback_category} onChange={handleFeedbackChange} />
-            </label>
-            <label>
-              Experience rating (0-10):
-              <input name="experience_rating" type="number" min="0" max="10" value={feedbackForm.experience_rating} onChange={handleFeedbackChange} />
-            </label>
-            <label>
-              Detailed feedback:
-              <textarea name="detailed_feedback" value={feedbackForm.detailed_feedback} onChange={handleFeedbackChange} />
-            </label>
-            <div style={{ marginTop: 12 }}>
-              <button onClick={submitFeedback} className="control-button btn-save-stunning">Submit</button>
-              <button onClick={closeFeedbackForm} className="control-button btn-cancel-stunning" style={{ marginLeft: 8 }}>Close</button>
-            </div>
-          </div>
+{/* ======================= UPDATED FEEDBACK MODAL (SCROLLABLE + NO IMAGE) ======================= */}
+{showFeedbackForm && selectedComplaint && (
+  <div className="fb-overlay">
+    <div className="fb-card fb-scroll">
+
+      <div className="fb-header">
+        <h2>Feedback Form</h2>
+        <button className="fb-close" onClick={() => { setShowFeedbackForm(false); setSelectedComplaint(null); }}>×</button>
+      </div>
+
+      <form className="fb-form" onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmitNewFeedback();
+      }}>
+
+        {/* Complaint Info */}
+        <label>Complaint ID</label>
+        <input type="text" value={selectedComplaint?.complaintId || "CMPXXXX"} readOnly />
+
+        <label>Complaint Title</label>
+        <input type="text" value={selectedComplaint?.title || ""} readOnly />
+
+        {/* Days */}
+        <label>How many days it took to solve *</label>
+        <input
+          type="number"
+          min="0"
+          value={fbDays}
+          onChange={(e) => setFbDays(e.target.value)}
+          required
+        />
+
+        {/* Rating */}
+        <label>Rating *</label>
+        <div className="fb-stars">
+          {[1,2,3,4,5].map(num => (
+            <span
+              key={num}
+              className={num <= fbRating ? "star active" : "star"}
+              onClick={() => setFbRating(num)}
+            >
+              ★
+            </span>
+          ))}
         </div>
-      )}
+
+        {/* Satisfaction */}
+        <label>Satisfaction *</label>
+        <div className="fb-emojis">
+          <span className={fbMood==="happy"?"emo selected":"emo"} onClick={() => setFbMood("happy")}>🙂</span>
+          <span className={fbMood==="neutral"?"emo selected":"emo"} onClick={() => setFbMood("neutral")}>😐</span>
+          <span className={fbMood==="sad"?"emo selected":"emo"} onClick={() => setFbMood("sad")}>🙁</span>
+        </div>
+
+        {/* Resolved Toggle */}
+        <label>Was the complaint fully resolved? *</label>
+        <div className="fb-radio">
+          <label><input type="radio" checked={fbResolved===true} onChange={() => setFbResolved(true)} /> Yes</label>
+          <label><input type="radio" checked={fbResolved===false} onChange={() => setFbResolved(false)} /> No</label>
+        </div>
+
+        {/* Pending Issue */}
+        {!fbResolved && (
+          <>
+            <label>What is still pending *</label>
+            <textarea
+              rows="3"
+              value={fbPending}
+              onChange={(e)=>setFbPending(e.target.value)}
+              required
+            ></textarea>
+          </>
+        )}
+
+        {/* Detailed Feedback */}
+        <label>Detailed Feedback *</label>
+        <textarea
+          rows="5"
+          value={fbDetails}
+          onChange={(e)=>setFbDetails(e.target.value)}
+          placeholder="Explain your experience in detail..."
+          required
+        ></textarea>
+
+        {/* Submit */}
+        <div className="fb-actions">
+          <button type="button" className="fb-btn cancel" onClick={() => { setShowFeedbackForm(false); setSelectedComplaint(null); }}>Cancel</button>
+          <button type="submit" className="fb-btn submit">Submit</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 }

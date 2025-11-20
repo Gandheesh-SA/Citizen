@@ -1,173 +1,128 @@
 const Feedback = require("../models/feedback");
 const Complaint = require("../models/complaints");
-const User = require("../models/user");
-const mongoose = require("mongoose");
 
-
-// 🆕 Create Feedback
 exports.createFeedback = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const {
-      feedback_type,
+      complaint,
+      daysTaken,
       rating,
-      experience_rating,
-      detailed_feedback,
-      feedback_categories,
-      feedback_category, // ✅ include dropdown field
-      experience_date,
-      location,
-      follow_up,
-      suggestions,
-      complaint
+      satisfaction,
+      resolved,
+      pendingIssue,
+      detailedFeedback
     } = req.body;
 
-    const userId = req.user._id;
-    let linkedComplaint = null;
+    if (!complaint)
+      return res.status(400).json({ message: "Complaint ID required" });
 
-    if (complaint) {
-      linkedComplaint = await Complaint.findById(complaint);
-      if (!linkedComplaint) return res.status(404).json({ message: "Complaint not found" });
+    const c = await Complaint.findById(complaint);
+
+    if (!c)
+      return res.status(404).json({ message: "Complaint not found" });
+
+    // ---- FIXED: SAFE OWNER CHECK ----
+    const owner = c.userId || c.user || c.createdBy;
+    if (!owner || owner.toString() !== userId) {
+      return res.status(403).json({
+        message: "Unauthorized: You do not own this complaint"
+      });
     }
 
-    const newFeedback = new Feedback({
+    // Check existing feedback
+    const exists = await Feedback.findOne({ complaint });
+    if (exists)
+      return res.status(400).json({ message: "Feedback already submitted" });
+
+    const fb = await Feedback.create({
+      complaint,
       user: userId,
-      complaint: linkedComplaint ? linkedComplaint._id : null,
-      feedback_type,
+      daysTaken,
       rating,
-      experience_rating,
-      detailed_feedback,
-      feedback_categories,
-      feedback_category,
-      experience_date,
-      location,
-      follow_up,
-      suggestions,
+      satisfaction,
+      resolved,
+      pendingIssue: resolved ? "" : pendingIssue,
+      detailedFeedback
     });
 
-    await newFeedback.save();
-    res.status(201).json({ message: "Feedback submitted successfully", feedback: newFeedback });
+    res.status(201).json({ success: true, feedback: fb });
+
   } catch (err) {
-    console.error("Error creating feedback:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Feedback error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
 
-// 📋 Get all feedbacks with JOIN
-exports.getAllFeedback = async (req, res) => {
-  try {
-    const feedbacks = await Feedback.find()
-      .populate("user", "userId fullName email location")
-      .populate("complaint", "complaintId title category status")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(feedbacks);
-  } catch (err) {
-    console.error("Error fetching feedbacks:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// 🔍 Get feedbacks by complaint ID
-exports.getFeedbackByComplaint = async (req, res) => {
-  try {
-    const complaint = await Complaint.findOne({ complaintId: req.params.complaintId });
-    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
-
-    const feedbacks = await Feedback.find({ complaint: complaint._id })
-      .populate("user", "userId fullName email")
-      .populate("complaint", "complaintId title category status");
-
-    res.status(200).json(feedbacks);
-  } catch (err) {
-    console.error("Error fetching feedback by complaint:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-
-exports.deleteFeedback = async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid feedback ID format" });
-    }
-
-    const feedback = await Feedback.findById(req.params.id);
-    if (!feedback) {
-      return res.status(404).json({ message: "Feedback not found" });
-    }
-
-    if (feedback.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized: Cannot delete this feedback" });
-    }
-
-    await Feedback.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({ message: "Feedback deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting feedback:", err);
-    res.status(500).json({ message: "Server error deleting feedback" });
-  }
-};
-
-
-// 👤 Get feedbacks by user
-exports.getFeedbackByUser = async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    const feedbacks = await Feedback.find({ user: userId })
-      .populate("user", "userId fullName email")
-      .populate("complaint", "complaintId title category status");
-
-    res.status(200).json(feedbacks);
-  } catch (err) {
-    console.error("Error fetching user feedback:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ✏️ Update feedback (editable only within 1 hour)
+// UPDATE FEEDBACK
 exports.updateFeedback = async (req, res) => {
   try {
-    const feedback = await Feedback.findById(req.params.id);
-    if (!feedback) return res.status(404).json({ message: "Feedback not found" });
+    const userId = req.user.id;
+    const fbId = req.params.id;
 
-    // ✅ Ensure only feedback owner can edit
-    if (feedback.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized: You cannot edit this feedback" });
-    }
+    const fb = await Feedback.findById(fbId);
+    if (!fb) return res.status(404).json({ message: "Feedback not found" });
 
-   
-    const timeElapsedMinutes = (Date.now() - new Date(feedback.createdAt)) / (1000 * 60);
-    if (timeElapsedMinutes > 30) {
-      return res.status(400).json({ message: "Feedback can only be edited within 1 hour of submission." });
-    }
+    if (fb.user.toString() !== userId)
+      return res.status(403).json({ message: "Unauthorized" });
 
-    // 📝 Update editable fields
-    const allowedUpdates = [
-      "rating",
-      "experience_rating",
-      "detailed_feedback",
-      "feedback_categories",
-      "feedback_category", // ✅ newly added dropdown field
-      "location",
-      "follow_up",
-      "suggestions",
-      "experience_date",
-    ];
-    allowedUpdates.forEach((key) => {
-      if (req.body[key] !== undefined) {
-        feedback[key] = req.body[key];
-      }
-    });
+    const updated = await Feedback.findByIdAndUpdate(
+      fbId,
+      {
+        ...req.body,
+        pendingIssue: req.body.resolved ? "" : req.body.pendingIssue,
+      },
+      { new: true }
+    );
 
-    await feedback.save();
-    res.status(200).json({ message: "Feedback updated successfully", feedback });
+    res.json({ success: true, feedback: updated });
   } catch (err) {
-    console.error("Error updating feedback:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 };
 
+// DELETE FEEDBACK
+exports.deleteFeedback = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const fb = await Feedback.findById(req.params.id);
 
+    if (!fb) return res.status(404).json({ message: "Feedback not found" });
+
+    if (fb.user.toString() !== userId)
+      return res.status(403).json({ message: "Unauthorized" });
+
+    await fb.deleteOne();
+
+    res.json({ success: true, message: "Feedback removed" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET MY FEEDBACKS
+exports.getMyFeedbacks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const list = await Feedback.find({ user: userId })
+      .populate("complaint", "complaintId title");
+
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET FEEDBACK FOR A COMPLAINT
+exports.getFeedbackForComplaint = async (req, res) => {
+  try {
+    const list = await Feedback.find({ complaint: req.params.complaintId })
+      .populate("user", "fullName email");
+
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

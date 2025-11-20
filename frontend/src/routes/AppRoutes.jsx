@@ -12,6 +12,10 @@ import Help from "../components/main/help.jsx";
 import AdminDashboard from "../pages/Admin/admin_dashboard.jsx";
 import UserDashboard from "../components/main/user_dashboard.jsx";
 import PostAnnouncement from "../components/main/post_announcement.jsx";
+import Community from "../components/main/community.jsx";
+import CreateCommunity from "../components/community/createCommunity.jsx";
+import JoinCommunity from "../components/community/joinCommunity.jsx";
+import HelpSupport from "../components/main/help.jsx";
 
 export default function AppRoutes() {
   return (
@@ -30,7 +34,10 @@ export default function AppRoutes() {
           <Route path="/home" element={<Home />} />
           <Route path="/post-complaint" element={<PostComplaint />} />
           <Route path="/post-announcement" element={<PostAnnouncement />} />
-          <Route path="/help" element={<Help />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/help" element={<HelpSupport />} />
+          <Route path="/community/create" element={<CreateCommunity />} />
+          <Route path="/community/join" element={<JoinCommunity />} />
           <Route path="/user-dashboard" element={<UserDashboard />} /> 
           <Route path="/post-announcement" element={<PostAnnouncement />} />
          

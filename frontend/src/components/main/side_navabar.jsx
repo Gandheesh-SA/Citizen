@@ -7,8 +7,10 @@ import {
   FaBullhorn, 
   FaQuestionCircle, 
   FaTachometerAlt, 
-  FaSignOutAlt 
+  FaSignOutAlt,
+ 
 } from 'react-icons/fa';
+import { FaPeopleGroup } from "react-icons/fa6";
 import "../../styles/sidebar.css";
 
 const Sidebar = () => {
@@ -34,6 +36,9 @@ const Sidebar = () => {
           </NavLink>
           <NavLink to="/post-announcement" className="nav-item">
             <FaBullhorn className="nav-icon" /> Announcement
+          </NavLink>
+           <NavLink to="/community" className="nav-item">
+            <FaPeopleGroup className="nav-icon" /> Community
           </NavLink>
           <NavLink to="/help" className="nav-item">
             <FaQuestionCircle className="nav-icon" /> Help

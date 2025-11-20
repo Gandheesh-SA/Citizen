@@ -6,43 +6,62 @@ import { Outlet, useLocation } from "react-router-dom";
 import TopHeader from "../../components/main/topheader";
 import NewsFeed from "../../components/news/newsFeed";
 
-const MOCK_USER_NAME = "Test1";
-
-const RightSidebarInner = ({ onClose }) => {
-  return (
-    <div className="right-sidebar__inner" role="region" aria-label="Area Insights">
-      <h3>Coimbatore Happenings</h3>
-
-      <NewsFeed />
-
-      <div style={{ marginTop: 18 }}>
-        
-      </div>
-    </div>
-  );
-};
-
 export default function Layout() {
   const location = useLocation();
   const isHomePage = location.pathname === "/home";
+
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ⭐ NEW: Dynamically fetched user name
+  const [userName, setUserName] = useState("");
+
+  // ――― Fetch logged in user's name ―――
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch("http://localhost:7500/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.fullName) {
+          setUserName(data.fullName);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user for header", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // ――― Time-based greeting ―――
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  // Drawer logic
   const closeBtnRef = useRef(null);
   const lastActiveRef = useRef(null);
 
-  const openDrawer = () => setDrawerOpen(true);
-  const closeDrawer = () => setDrawerOpen(false);
   const toggleDrawer = () => setDrawerOpen((s) => !s);
+  const closeDrawer = () => setDrawerOpen(false);
 
-  // lock body scroll when drawer is open and restore when closed
+  // Handle body scroll lock & focus when drawer opens
   useEffect(() => {
     if (drawerOpen) {
       document.body.style.overflow = "hidden";
       lastActiveRef.current = document.activeElement;
-      // focus the close button when drawer opens (we'll focus after small delay to ensure render)
       setTimeout(() => closeBtnRef.current?.focus?.(), 120);
     } else {
       document.body.style.overflow = "";
-      // restore focus to previously focused element
       try {
         lastActiveRef.current?.focus?.();
       } catch (e) {}
@@ -52,33 +71,38 @@ export default function Layout() {
     };
   }, [drawerOpen]);
 
-  // close drawer when route changes (optional)
+  // Close drawer when route changes
   useEffect(() => {
     setDrawerOpen(false);
   }, [location.pathname]);
 
   return (
     <div className="layout-wrapper">
-      <TopHeader 
-  userName={MOCK_USER_NAME} 
-  onInsightsToggle={toggleDrawer}
-  showInsights={isHomePage}
-/>
+
+      {/* ⭐ Updated Top Header with dynamic greeting + user name */}
+      <TopHeader
+        userName={userName}
+        greeting={getGreeting()}
+        onInsightsToggle={toggleDrawer}
+        showInsights={isHomePage}
+      />
 
       <div className={`layout-container ${isHomePage ? "with-right" : "no-right"}`}>
+
         <Sidebar />
 
         <main
-          className={`main-content ${location.pathname === "/post-complaint" ? "post-complaint-bg" : ""}`}
+          className={`main-content ${
+            location.pathname === "/post-complaint" ? "post-complaint-bg" : ""
+          }`}
           onClick={() => {
-            // clicking main content closes drawer on small screens
             if (drawerOpen && window.innerWidth <= 1200) closeDrawer();
           }}
         >
           <Outlet />
         </main>
 
-        { /* Desktop: static right column; Mobile: off-canvas drawer (controlled via .open) */ }
+        {/* Right sidebar (desktop static, mobile drawer) */}
         {isHomePage && (
           <aside
             className={`right-sidebar ${drawerOpen ? "open" : ""}`}
@@ -88,7 +112,7 @@ export default function Layout() {
           </aside>
         )}
 
-        { /* Overlay only used for small screens when drawer is open */ }
+        {/* Mobile overlay */}
         <div
           className={`right-drawer-overlay ${drawerOpen ? "visible" : ""}`}
           onClick={closeDrawer}
@@ -98,3 +122,17 @@ export default function Layout() {
     </div>
   );
 }
+
+// Right Sidebar Inner Component
+const RightSidebarInner = ({ onClose }) => {
+  return (
+    <div
+      className="right-sidebar__inner"
+      role="region"
+      aria-label="Area Insights"
+    >
+      <h3>Coimbatore Happenings</h3>
+      <NewsFeed />
+    </div>
+  );
+};

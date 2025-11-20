@@ -3,13 +3,13 @@ import React from "react";
 import { FaBell, FaCog, FaChartBar } from "react-icons/fa";
 import "../../styles/layout.css";
 
-const TopHeader = ({ userName, onInsightsToggle, showInsights }) => {
+const TopHeader = ({ userName, greeting,  onInsightsToggle, showInsights,  }) => {
   return (
     <header className="top-header-block">
       
 
       <div className="header-greeting">
-        <div className="welcome-text1">Good evening, {userName}!</div>
+        <div className="welcome-text1">{greeting}, {userName}!</div>
       </div>
 
       <div className="header-actions">

@@ -1,0 +1,91 @@
+.join-container {
+  padding: 40px;
+}
+
+.join-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.join-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #104c44;
+}
+
+.create-btn {
+  background: #104c44;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.create-btn:hover {
+  background: #0b3b35;
+}
+
+.join-description {
+  margin: 10px 0 25px 0;
+  font-size: 15px;
+  color: #475569;
+  max-width: 650px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.community-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.community-table thead {
+  background: #104c44;
+  color: white;
+}
+
+.community-table th,
+.community-table td {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.community-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.join-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.join-btn:hover {
+  background: #15803d;
+}

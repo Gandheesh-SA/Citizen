@@ -1107,3 +1107,128 @@ body {
 
 
 
+/* FEEDBACK MODAL */
+.fb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.fb-card {
+  width: 650px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  animation: pop .15s ease;
+  overflow-y: auto;
+}
+.fb-card::-webkit-scrollbar {
+  width: 8px;
+}
+.fb-card::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.25);
+  border-radius: 10px;
+}
+@keyframes pop {
+  from { transform: scale(.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.fb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.fb-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.fb-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.fb-form label {
+  font-weight: 600;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.fb-form input,
+.fb-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.fb-stars { display: flex; gap: 10px; margin: 8px 0; }
+.star {
+  font-size: 26px;
+  cursor: pointer;
+  color: #ccc;
+}
+.star.active {
+  color: #ffcc00;
+}
+
+.fb-emojis { display: flex; gap: 16px; margin-bottom: 10px; }
+.emo {
+  font-size: 26px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+.emo.selected {
+  background: #e3fdf8;
+  border: 1px solid #009688;
+}
+
+.fb-radio label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.fb-preview img {
+  width: 140px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.fb-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fb-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.fb-btn.cancel {
+  background: #eee;
+}
+.fb-btn.submit {
+  background: #005b5f;
+  color: white;
+}

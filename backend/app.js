@@ -46,7 +46,9 @@ app.use("/api/comments", commentRoutes);
 
 app.use("/uploads", express.static("uploads"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
-
+const communityRoutes = require("./routes/communityRoutes");
+app.use("/api/communities", communityRoutes);
+app.use("/api/help-support", require("./routes/helpSupportRoutes"));
 
 app.get("/", (req, res) => res.send("API is running"));
 app.get("/api/test", (req, res) =>
