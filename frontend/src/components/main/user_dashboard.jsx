@@ -512,12 +512,16 @@ useEffect(() => {
                       </td>
                       <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td className="action-column-stunning">
-                        <button className="action-btn edit" onClick={() => handleEditSubmission(item, "complaint")}>
-                          <MdEdit /> Edit
-                        </button>
-                        <button className="action-btn delete" onClick={() => handleDeleteSubmission(item._id, "complaint")}>
-                          <MdDelete /> Delete
-                        </button>
+                      {item.status?.toLowerCase() !== "accepted" && (
+                          <>
+                            <button className="action-btn edit" onClick={() => handleEditSubmission(item, "complaint")}>
+                              <MdEdit /> Edit
+                            </button>
+                            <button className="action-btn delete" onClick={() => handleDeleteSubmission(item._id, "complaint")}>
+                              <MdDelete /> Delete
+                            </button>
+                          </>
+                        )}
                         {item.status?.toLowerCase() === "resolved" ? (
                           !feedbacks.some((f) => f.complaint?._id === item._id) ? (
                             <button className="action-btn feedback" onClick={() => openFeedbackForm(item)}>
