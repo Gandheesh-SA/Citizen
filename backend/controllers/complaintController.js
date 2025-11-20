@@ -1,7 +1,40 @@
+const mongoose = require("mongoose");
 const Complaint = require("../models/complaints");
 const User = require("../models/user");
+const Interaction = require("../models/interaction");
+const Comment = require("../models/comment");
 
+/* =========================================================
+   BUILD COMMENT TREE
+   ========================================================= */
+function buildCommentTree(flat) {
+  const map = new Map();
 
+  flat.forEach((c) => {
+    map.set(c._id.toString(), { ...c.toObject(), replies: [] });
+  });
+
+  const roots = [];
+
+  flat.forEach((c) => {
+    const id = c._id.toString();
+    const parentId = c.parentId ? c.parentId.toString() : null;
+
+    if (!parentId) {
+      roots.push(map.get(id));
+    } else {
+      const parent = map.get(parentId);
+      if (parent) parent.replies.push(map.get(id));
+      else roots.push(map.get(id));
+    }
+  });
+
+  return roots;
+}
+
+/* =========================================================
+   CREATE COMPLAINT (MULTIPLE MEDIA SUPPORTED)
+   ========================================================= */
 exports.createComplaint = async (req, res) => {
   try {
     const {
@@ -14,23 +47,25 @@ exports.createComplaint = async (req, res) => {
       location,
     } = req.body;
 
-    const image = req.file ? req.file.path : "";
     const user = req.user;
-    if (!user) {
-      return res.status(401).json({ message: "Unauthorized user" });
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    // Generate ID CMP001 etc.
+    const last = await Complaint.findOne().sort({ createdAt: -1 });
+    let next = 1;
+    if (last?.complaintId) {
+      const num = parseInt(last.complaintId.replace("CMP", ""), 10);
+      if (!isNaN(num)) next = num + 1;
     }
+    const complaintId = `CMP${String(next).padStart(3, "0")}`;
 
-  const lastComplaint = await Complaint.findOne().sort({ createdAt: -1 });
-let nextNumber = 1;
+    // NEW: handle multiple uploaded files
+    const mediaFiles =
+      req.files?.length > 0
+        ? req.files.map((f) => f.path.replace(/\\/g, "/"))
+        : [];
 
-if (lastComplaint && lastComplaint.complaintId) {
-  const lastNum = parseInt(lastComplaint.complaintId.replace("CMP", ""), 10);
-  if (!isNaN(lastNum)) nextNumber = lastNum + 1;
-}
-
-const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
-    
-    const complaint = new Complaint({
+    const complaint = await Complaint.create({
       complaintId,
       title,
       category,
@@ -38,12 +73,10 @@ const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
       areaType,
       description,
       days,
-      image,
+      media: mediaFiles, // Save multiple media
       location,
-      user: user._id, 
+      user: user._id,
     });
-
-    await complaint.save();
 
     res.status(201).json({
       message: "Complaint created successfully",
@@ -55,7 +88,9 @@ const complaintId = `CMP${String(nextNumber).padStart(3, "0")}`;
   }
 };
 
-
+/* =========================================================
+   GET ALL COMPLAINTS
+   ========================================================= */
 exports.getAllComplaints = async (req, res) => {
   try {
     const { category } = req.query;
@@ -66,7 +101,7 @@ exports.getAllComplaints = async (req, res) => {
     }
 
     const complaints = await Complaint.find(filter)
-      .populate("user", "userId fullName email role location") 
+      .populate("user", "fullName email role location")
       .sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
@@ -76,15 +111,18 @@ exports.getAllComplaints = async (req, res) => {
   }
 };
 
-
+/* =========================================================
+   GET COMPLAINT BY ID
+   ========================================================= */
 exports.getComplaintById = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id)
-      .populate("user", "userId fullName email role location");
+    const complaint = await Complaint.findById(req.params.id).populate(
+      "user",
+      "fullName email role location"
+    );
 
-    if (!complaint) {
+    if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
-    }
 
     res.status(200).json(complaint);
   } catch (err) {
@@ -93,16 +131,17 @@ exports.getComplaintById = async (req, res) => {
   }
 };
 
-
+/* =========================================================
+   GET MY COMPLAINTS
+   ========================================================= */
 exports.getMyComplaints = async (req, res) => {
   try {
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const complaints = await Complaint.find({ user: user._id })
-      .populate("user", "userId fullName email");
+    const complaints = await Complaint.find({ user: req.user._id }).populate(
+      "user",
+      "fullName email"
+    );
 
     res.status(200).json(complaints);
   } catch (err) {
@@ -111,24 +150,46 @@ exports.getMyComplaints = async (req, res) => {
   }
 };
 
+/* =========================================================
+   UPDATE COMPLAINT (MERGE EXISTING + NEW MEDIA)
+   ========================================================= */
 exports.updateComplaint = async (req, res) => {
   try {
-    const updatedComplaint = await Complaint.findByIdAndUpdate(
-      req.params.id,
+    const id = req.params.id;
+
+    // Parse existing media from JSON string
+    let existingMedia = [];
+    if (req.body.existingMedia) {
+      try {
+        existingMedia = JSON.parse(req.body.existingMedia);
+      } catch (err) {
+        existingMedia = [];
+      }
+    }
+
+    // New uploaded media
+    const newMedia =
+      req.files?.length > 0
+        ? req.files.map((f) => f.path.replace(/\\/g, "/"))
+        : [];
+
+    const finalMedia = [...existingMedia, ...newMedia];
+
+    const updated = await Complaint.findByIdAndUpdate(
+      id,
       {
         ...req.body,
-        image: req.file ? req.file.path : req.body.image,
+        media: finalMedia,
       },
       { new: true }
-    ).populate("user", "userId fullName email");
+    );
 
-    if (!updatedComplaint) {
+    if (!updated)
       return res.status(404).json({ message: "Complaint not found" });
-    }
 
     res.status(200).json({
       message: "Complaint updated successfully",
-      complaint: updatedComplaint,
+      complaint: updated,
     });
   } catch (err) {
     console.error("Error updating complaint:", err);
@@ -136,18 +197,64 @@ exports.updateComplaint = async (req, res) => {
   }
 };
 
-
+/* =========================================================
+   DELETE COMPLAINT
+   ========================================================= */
 exports.deleteComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findByIdAndDelete(req.params.id);
 
-    if (!complaint) {
+    if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
-    }
+
+    await Interaction.deleteOne({ complaintId: complaint._id }).catch(() => {});
+    await Comment.deleteMany({ complaintId: complaint._id }).catch(() => {});
 
     res.status(200).json({ message: "Complaint deleted successfully" });
   } catch (err) {
     console.error("Error deleting complaint:", err);
     res.status(500).json({ message: "Server error deleting complaint" });
+  }
+};
+
+/* =========================================================
+   GET FULL COMPLAINT (COMPLAINT + COMMENTS + INTERACTION)
+   ========================================================= */
+exports.getFullComplaint = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ message: "Invalid complaint ID" });
+
+    const complaint = await Complaint.findById(id).populate(
+      "user",
+      "fullName email role"
+    );
+
+    if (!complaint)
+      return res.status(404).json({ message: "Complaint not found" });
+
+    const interaction = await Interaction.findOne({ complaintId: id })
+      .populate("upvotes", "fullName")
+      .lean();
+
+    const commentsFlat = await Comment.find({ complaintId: id })
+      .populate("userId", "fullName")
+      .sort({ createdAt: 1 });
+
+    const commentsTree = buildCommentTree(commentsFlat);
+
+    res.status(200).json({
+      complaint,
+      interaction: interaction || { upvoteCount: 0, upvotes: [] },
+      comments: commentsTree,
+      commentsFlat,
+    });
+  } catch (err) {
+    console.error("Error fetching full complaint:", err);
+    res
+      .status(500)
+      .json({ message: "Server error fetching full complaint" });
   }
 };

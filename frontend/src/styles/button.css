@@ -1,5 +1,5 @@
-.btn-primary,
-.btn-outline {
+.btn-primary1,
+.btn-outline1 {
   font-size: 1rem;       
   font-weight: 500;       
   padding: 15px 28px;     
@@ -9,25 +9,25 @@
   margin-bottom: 20px;
 }
 
-.btn-primary {
+.btn-primary1 {
   background: linear-gradient(135deg, #104c44, #1c6f63);
   color: white;
   border: none;
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn-primary1:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0px 6px 20px rgba(16, 76, 68, 0.25);
   background: #005b5f; /* hover color */
 }
 
-.btn-outline {
+.btn-outline1 {
   border: 2px solid #104c44;
   background: white;
   color: #104c44;
 }
 
-.btn-outline:hover:not(:disabled) {
+.btn-outline1:hover:not(:disabled) {
   background: #104c44;
   color: white;
 }

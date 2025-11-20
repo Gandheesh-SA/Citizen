@@ -1,137 +1,295 @@
-/* === Layout Container === */
-.layout-wrapper .layout-container {
-  display: flex;
-  min-height: 100vh;
-  overflow: hidden;
+:root {
+  --header-height: 60px;
+  --sidebar-width: 270px;
+  --rightbar-width: 300px;
+  --green: #104c44;
 }
 
-/* === Left Sidebar === */
-.layout-wrapper .layout-container > *:first-child {
+/* ---------------- PREMIUM TOP NAVBAR ---------------- */
+
+.top-header-block {
+  width: 100%;
+  height: 72px;
+  background: linear-gradient(135deg, #0e3f39 0%, #0d5d54 100%);
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   position: fixed;
   top: 0;
   left: 0;
-  width: 300px;
-  height: 100vh;
-  overflow-y: auto;
+  right: 0;
+  z-index: 1100;
+
+  color: white;
+  font-family: "Poppins", sans-serif;
+
+  /* PREMIUM EFFECTS */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+
+  backdrop-filter: blur(8px);
+}
+
+/* Branding */
+.header-branding .app-logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Greeting text */
+.header-greeting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+}
+
+.welcome-text1 {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Right actions container */
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* Icon button container */
+.header-actions .header-icon {
+  height: 24px;
+  width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+font-size: 1.5rem;
+
+  
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.header-icon:hover {
+ 
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-icon:active {
+  transform: scale(0.96);
+}
+
+/* Insights button hidden on desktop */
+@media (min-width: 1200px) {
+  .insights-btn {
+    display: none !important;
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .top-header-block {
+    padding: 0 20px;
+    height: 64px;
+    border-radius: 0;
+  }
+
+  .header-branding .app-logo {
+    font-size: 1.35rem;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .header-icon {
+    height: 38px;
+    width: 38px;
+  }
+}
+
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-container {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  padding-top: var(--header-height);
+}
+
+.layout-wrapper .layout-container > *:first-child {
+  position: fixed;
+  left: 0;
+  top: var(--header-height);
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--header-height));
   background-color: #ffffff;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  z-index: 100;
+  overflow: hidden !important;
+  z-index: 200;
 }
 
-.layout-wrapper .main-content {
-  margin-left: 300px;
-  margin-right: 0;
-  padding: 60px 60px; /* reduced side padding to allow more width */
-  width: calc(100% - 300px);
-  min-height: 100vh;
+.sidebar-container,
+.sidebar {
+  width: var(--sidebar-width) !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+}
+
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding: 0 !important;
+  width: calc(100% - var(--sidebar-width));
   background-color: #f9fafb;
   color: #1e293b;
-  font-family: "Poppins", sans-serif;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-  transition: all 0.3s ease;
   display: flex;
-  flex-direction: column;  /* ✅ ensures cards stack vertically */
-  align-items: center;     /* ✅ centers horizontally */
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  transition: all 0.3s ease;
 }
 
-/* === Gradient background only for Post Complaint page === */
-.layout-wrapper .main-content.post-complaint-bg {
-  background: var(--my-gradient);
-  background-size: cover;
-  background-position: center;
+.layout-container.with-right .main-content {
+  margin-right: var(--rightbar-width);
+  width: calc(100% - var(--sidebar-width) - var(--rightbar-width));
 }
 
-/* === When Right Sidebar IS visible (only on Home) === */
-.layout-wrapper .layout-container.with-right .main-content {
-  margin-right: 300px;
-  width: calc(100% - 600px);
-}
-
-/* === When Right Sidebar is hidden (all other pages) === */
-.layout-wrapper .layout-container.no-right .main-content {
+.layout-container.no-right .main-content {
   margin-right: 0;
-  width: calc(100% - 300px);
+  width: calc(100% - var(--sidebar-width));
 }
 
-/* === Right Sidebar === */
-.layout-wrapper .right-sidebar {
+.right-sidebar {
   position: fixed;
-  top: 0;
   right: 0;
-  width: 300px;
-  height: 100vh;
+  top: var(--header-height);
+  width: var(--rightbar-width);
+  height: calc(100vh - var(--header-height));
   background-color: #ffffff;
   border-left: 1px solid #e2e8f0;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
   padding: 30px 20px;
   overflow-y: auto;
-  z-index: 90;
+  z-index: 150;
 }
 
-/* === Right Sidebar Content === */
-.layout-wrapper .right-sidebar h3 {
+.right-sidebar__inner {
+  padding: 0;
+}
+
+.right-sidebar h3 {
   font-size: 1.3rem;
   font-weight: 600;
   color: #0f172a;
   margin-bottom: 15px;
 }
 
-.layout-wrapper .right-sidebar p {
+.right-sidebar p {
   font-size: 0.95rem;
   color: #475569;
   line-height: 1.5;
-  margin-bottom: 15px;
 }
 
-/* === Complaint Card Wider Layout === */
-.layout-wrapper .complaint-card {
+.complaint-card {
   width: 100%;
-  max-width: 950px;
-  background: #fff;
+  max-width: 900px;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   padding: 30px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  margin-bottom: 25px;
+  margin: 20px auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.layout-wrapper .complaint-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* === Scrollbar Customization === */
-.layout-wrapper .main-content::-webkit-scrollbar,
-.layout-wrapper .right-sidebar::-webkit-scrollbar {
+.main-content::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
   width: 8px;
 }
 
-.layout-wrapper .main-content::-webkit-scrollbar-thumb,
-.layout-wrapper .right-sidebar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+.main-content::-webkit-scrollbar-thumb,
+.right-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
-.layout-wrapper .main-content::-webkit-scrollbar-thumb:hover,
-.layout-wrapper .right-sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+.right-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,12,0.45);
+  z-index: 140;
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
 }
 
-/* === Responsive Design === */
 @media (max-width: 1200px) {
-  .layout-wrapper .right-sidebar {
-    display: none;
+  .right-sidebar {
+    transform: translateX(110%);
+    transition: transform 320ms cubic-bezier(.2,.9,.2,1);
+    z-index: 160;
+    box-shadow: -8px 0 24px rgba(0,0,0,0.12);
   }
 
-  .layout-wrapper .main-content {
+  .right-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .right-drawer-overlay.visible {
+    display: block;
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .layout-container.with-right .main-content {
     margin-right: 0;
-    width: calc(100% - 300px);
+    width: calc(100% - var(--sidebar-width));
+  }
+}
+
+.insights-close-btn {
+  padding: 8px 12px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (min-width: 1200px) {
+  .header-actions .insights-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-wrapper .layout-container > *:first-child {
+    width: 70px !important;
   }
 
-  .layout-wrapper .complaint-card {
-    max-width: 90%;
-    padding: 20px;
+  .main-content {
+    margin-left: 70px !important;
+    width: calc(100% - 70px) !important;
   }
+
+  .layout-container.with-right .main-content {
+    margin-right: 0 !important;
+    width: calc(100% - 70px) !important;
+  }
+}
+
+.top-header-block,
+.main-content,
+.right-sidebar {
+  transition: all 240ms ease;
 }

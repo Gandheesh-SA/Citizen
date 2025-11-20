@@ -935,3 +935,175 @@ body {
     opacity: 1;
   }
 }
+
+/* =========================================================
+   PREMIUM DASHBOARD STAT BOXES (NO ICONS)
+   Matching older clean premium design
+   ========================================================= */
+
+.premium-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.premium-stat-card {
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 1.6rem 1.4rem;
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.12);
+  transition: all 200ms ease;
+  text-align: left;
+}
+
+.premium-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(5, 150, 105, 0.18);
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #064e3b;
+  margin-bottom: 0.4rem;
+}
+
+.stat-value {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #065f46;
+  line-height: 1.1;
+}
+
+/* ============================================================
+   CHARTS GRID — PREMIUM BRUTALIST STYLE
+   ============================================================ */
+
+.charts-wrapper {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 2.2rem;
+}
+
+.chart-card {
+  background: #ffffff;
+  border: 3px solid var(--highlight-color);
+  padding: 1.6rem;
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--highlight-color);
+  transition: 0.2s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 9px 9px 0 var(--highlight-color);
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.chart-card canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .chart-card {
+    padding: 1rem;
+  }
+}
+
+/* ============================================================
+   REPORTS SECTION — ACTION CARDS
+   ============================================================ */
+
+.reports-area {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.report-card {
+  background: #ffffff;
+  border: 3px solid var(--highlight-color);
+  padding: 1.4rem;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 6px 6px 0 var(--highlight-color);
+  transition: 0.2s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 10px 10px 0 var(--highlight-color);
+}
+
+.report-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+.report-desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-top: 0.4rem;
+  line-height: 1.5rem;
+}
+
+.report-actions {
+  margin-top: 1.4rem;
+  display: flex;
+  gap: 0.7rem;
+}
+
+.btn.primary {
+  background: var(--highlight-color);
+  color: #ffffff;
+  padding: 0.6rem 1.15rem;
+  font-weight: 800;
+  border: 2px solid var(--text-primary);
+  box-shadow: 3px 3px 0 var(--text-primary);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn.primary:hover {
+  background: #033b3d;
+  color: #ffffff;
+  box-shadow: 4px 4px 0 var(--highlight-color);
+}
+
+.btn.secondary {
+  background: #ffffff;
+  color: var(--text-primary);
+  padding: 0.6rem 1rem;
+  font-weight: 800;
+  border: 2px solid var(--highlight-color);
+  box-shadow: 3px 3px 0 var(--highlight-color);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn.secondary:hover {
+  background: var(--highlight-color);
+  color: #ffffff;
+  box-shadow: 4px 4px 0 var(--text-primary);
+}
+
+
+

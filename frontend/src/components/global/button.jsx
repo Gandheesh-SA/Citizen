@@ -11,7 +11,7 @@ const Button = ({
   isLoading = false,
   loadingText = "Loading...",
 }) => {
-  const className = variant === "primary" ? "btn-primary" : "btn-outline";
+  const className = variant === "primary1" ? "btn-primary1" : "btn-outline1";
 
   return (
     <button

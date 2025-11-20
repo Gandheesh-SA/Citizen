@@ -23,15 +23,15 @@ const CustomInput = ({
 
         {type === "select" ? (
           <select
-            {...registerProps}
+            name={registerProps.name}
+            value={registerProps.value} // <-- controlled value
+            onChange={registerProps.onChange} // <-- controlled onChange
             multiple={multiple}
-            value={registerProps.value || ""} // ✅ controlled select
           >
             {!multiple && (
-              <option value="" disabled>
-                {placeholder || "Select an option"}
-              </option>
+              <option value="">{placeholder || `Select ${label}`}</option>
             )}
+
             {options.map((opt, i) => (
               <option key={i} value={opt.value || opt}>
                 {opt.label || opt}
@@ -39,7 +39,13 @@ const CustomInput = ({
             ))}
           </select>
         ) : (
-          <input type={type} placeholder={placeholder} {...registerProps} />
+          <input
+            type={type}
+            placeholder={placeholder}
+            value={registerProps.value}
+            onChange={registerProps.onChange}
+            name={registerProps.name}
+          />
         )}
       </div>
     </div>

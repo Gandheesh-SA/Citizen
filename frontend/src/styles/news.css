@@ -1,0 +1,162 @@
+/* ============================
+   NEWS FEED CONTAINER
+============================ */
+.news-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-right: 6px;
+}
+
+
+/* ============================
+   NEWS CARD
+============================ */
+.news-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+
+/* ============================
+   IMAGE WRAPPER + BADGE
+============================ */
+.news-card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  background: #f7f7f7;
+}
+
+.news-card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Placeholder if image missing */
+.news-card-img.placeholder {
+  background: #f3f3f3;
+  color: #888;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+/* Badge */
+.news-tag {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #0078ff;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  backdrop-filter: blur(4px);
+}
+
+
+/* ============================
+   CONTENT AREA
+============================ */
+.news-card-body {
+  padding: 14px 16px 16px 16px;
+}
+
+.news-card-title {
+  font-size: 15.8px;
+  font-weight: 700;
+  color: #1e1e1e;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.news-card-desc {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+
+
+/* ============================
+   FOOTER (SOURCE + READ LINK)
+============================ */
+.news-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.news-source {
+  font-size: 11.8px;
+  color: #777;
+  font-weight: 600;
+}
+
+.news-read {
+  font-size: 12.8px;
+  color: #0071ff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.news-read:hover {
+  text-decoration: underline;
+}
+
+
+/* ============================
+   LOADING & ERROR
+============================ */
+.news-loading,
+.news-error {
+  color: #666;
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+
+/* Numbered placeholder style */
+.numbered-placeholder {
+  background: linear-gradient(135deg, #e8e8e8, #dcdcdc);
+  color: #555;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* FULL-SIZE NUMBERED PLACEHOLDER */
+.news-placeholder-full {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 42px;
+  font-weight: 700;
+  color: #333;
+
+  user-select: none;
+}
+

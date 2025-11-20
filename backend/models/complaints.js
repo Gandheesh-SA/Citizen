@@ -7,36 +7,27 @@ const complaintSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    title: {
-      type: String,
-      required: true,
-    },
-    category: {
+
+    title: { type: String, required: true },
+
+    category: { type: [String], required: true },
+
+    complaintType: { type: String, required: true },
+
+    areaType: { type: String, required: true },
+
+    description: { type: String, required: true },
+
+    days: { type: Number, required: true },
+
+    // MULTIPLE MEDIA FILES (IMAGES + VIDEOS)
+    media: {
       type: [String],
-      required: true,
+      default: [],
     },
-    complaintType: {
-      type: String,
-      required: true,
-    },
-    areaType: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    days: {
-      type: Number,
-      required: true,
-    },
-    image: {
-      type: String,
-    },
-    location: {
-      type: String,
-    },
+
+    location: { type: String },
+
     status: {
       type: String,
       enum: ["Pending", "In Progress", "Resolved"],
@@ -45,7 +36,7 @@ const complaintSchema = new mongoose.Schema(
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
   },

@@ -1,54 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const path = require("path");
+const upload = require("../middleware/upload"); 
+const auth = require("../middleware/auth");
+
 const {
   createComplaint,
   getAllComplaints,
   getComplaintById,
-  getMyComplaints,       // 👈 NEW controller for logged-in user's complaints
+  getMyComplaints,
   updateComplaint,
-  deleteComplaint
+  deleteComplaint,
+  getFullComplaint,
 } = require("../controllers/complaintController");
-const auth = require("../middleware/auth"); // 👈 Use correct auth middleware file name
 
-// 🖼️ Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, "CMP-" + Date.now() + path.extname(file.originalname)),
-});
+// Create complaint (CLOUDINARY)
+router.post("/", auth, upload.array("media", 4), createComplaint);
 
-const upload = multer({ storage });
+// Get all complaints
+router.get("/", auth, getAllComplaints);
 
-/* ============================================================
-   📤 CREATE complaint (linked to logged-in user)
-   ============================================================ */
-router.post("/", auth, upload.single("image"), createComplaint);
+// My complaints
+router.get("/my", auth, getMyComplaints);
 
-/* ============================================================
-   📋 GET all complaints (with user info)
-   ============================================================ */
-router.get("/", auth, getAllComplaints); // 👈 protect route (optional)
+// Full complaint
+router.get("/:id/full", auth, getFullComplaint);
 
-/* ============================================================
-   👤 GET complaints of logged-in user
-   ============================================================ */
-router.get("/my", auth, getMyComplaints); // 👈 NEW endpoint
-
-/* ============================================================
-   🔍 GET a single complaint by ID (includes user info)
-   ============================================================ */
+// Single complaint
 router.get("/:id", auth, getComplaintById);
 
-/* ============================================================
-   ✏️ UPDATE complaint
-   ============================================================ */
-router.put("/:id", auth, upload.single("image"), updateComplaint);
+// Update
+router.put("/:id", auth, upload.array("media", 4), updateComplaint);
 
-/* ============================================================
-   🗑️ DELETE complaint
-   ============================================================ */
+// Delete
 router.delete("/:id", auth, deleteComplaint);
 
 module.exports = router;

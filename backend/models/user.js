@@ -1,29 +1,38 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-  userId: { type: String, unique: true },
-  fullName: { type: String, required: true, trim: true },
-  email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true },
-  phone:    { type: String },
-  location: { type: String },
-  work:     { type: String },
-  gender:   { type: String },
-  age:      { type: Number },
-  volunteering: { type: String },
-  volunteeringTypes: { type: [String], default: [] },
-  volunteeringDays: { type: String },
-  role: { type: String, enum: ["user", "admin"], default: "user" }, // Role field
-}, { timestamps: true });
+const userSchema = new mongoose.Schema(
+  {
+    userId: { type: String, unique: true },               // Custom ID like USR001
+    fullName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    password: { type: String, required: true },
 
-// Generate sequential custom userId like USR001 or ADM001
+    phone: { type: String },
+    age: { type: Number },
+    gender: { type: String },
+
+    work: { type: String },           // Profession / Work
+    location: { type: String, default: "Coimbatore" }, 
+    area: { type: String },           // NEW FIELD
+
+    volunteering: { type: String },   // Yes / No
+    volunteeringTypes: { type: [String], default: [] },   // MULTIPLE selections
+    volunteeringDays: { type: String },
+
+    badge: { type: String, default: "Beginner" },         // NEW FIELD, NON-EDITABLE
+
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+  },
+  { timestamps: true }
+);
+
+// Generate sequential custom userId like USR001 / ADM001
 userSchema.pre("save", async function (next) {
   if (this.userId) return next();
 
   try {
     const prefix = this.role === "admin" ? "ADM" : "USR";
 
-    // Find the latest user of the same role
     const lastUser = await mongoose.model("User").findOne(
       { role: this.role },
       {},
@@ -43,12 +52,11 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// Optional: remove password before sending user data
-userSchema.methods.toJSON = function() {
+// Remove password before sending user
+userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

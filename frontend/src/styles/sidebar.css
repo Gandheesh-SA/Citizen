@@ -108,25 +108,112 @@
   color: #94a3b8;
   text-align: center;
 }
-
-/* RESPONSIVE */
+/* --- MOBILE SIDEBAR FIXES --- */
 @media (max-width: 768px) {
+
+  /* Prevent scrolling entirely */
   .sidebar {
-    width: 70px;
-    padding: 20px 10px;
+    overflow: hidden !important;
+    height: 100vh;
+    padding: 25px 10px;
   }
 
+  /* Shrink logo */
   .logo {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
+    font-size: 1.1rem !important;
+    margin-bottom: 15px !important;
+    letter-spacing: 1px;
   }
 
+  /* Reduce spacing between items */
+  .nav-menu {
+    gap: 18px !important;
+  }
+
+  /* Shrink nav item text */
   .nav-item {
-    font-size: 0.9rem;
-    width: 100%;
+    font-size: 0.75rem !important;
+    padding: 8px 0 !important;
+    gap: 8px !important;
   }
 
+  /* Shrink icons */
+  .nav-icon {
+    font-size: 0.85rem !important;
+    width: 16px !important;
+  }
+
+  /* Logout button smaller */
   .logout-btn {
-    font-size: 0.9rem;
+    width: 100%;
+    font-size: 0.8rem !important;
+    padding: 8px 0 !important;
+    margin-bottom: 25px !important;
+  }
+
+  /* Footer text smaller */
+  .sidebar-footer {
+    font-size: 0.7rem !important;
+  }
+
+  /* Tighter layout */
+  .sidebar-main {
+    margin-top: 15px !important;
   }
 }
+
+
+.sidebar .nav-menu .nav-item {
+  display: flex;
+  align-items: center;
+  /* ⬅️ Ensure uniform spacing for the gap between icon and text */
+  gap: 12px; 
+  
+  /* ⬅️ Add left padding to shift the entire block content inward */
+  padding-left: 25px; 
+  /* Also add vertical padding if not already present in the link container */
+}
+
+/* Base style for all navigation icons */
+.sidebar .nav-menu .nav-icon {
+  font-size: .7rem;
+  /* ⬅️ Crucial: Fixed width ensures the text starts at the exact same point for all links */
+  width: 20px; 
+  color: #475569; /* Default icon color (subtle gray) */
+  transition: color 0.2s ease;
+  /* Add flex-shrink: 0 to prevent the icon from shrinking on smaller screens */
+  flex-shrink: 0; 
+}
+
+/* Active link icon color (matches the theme accent color) */
+.sidebar .nav-menu .nav-item.active .nav-icon {
+  color: #1a4d3f; /* Deep Green Accent */
+}
+
+/* Hover state for icons */
+.sidebar .nav-menu .nav-item:hover .nav-icon {
+    color: #1a4d3f; 
+}
+
+.nav-icon:hover{
+  color: white;
+}
+
+/* --- Logout Button Icon --- */
+
+.sidebar .logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content within the button */
+    gap: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+.logout-icon:hover{
+  color: white;
+}
+.sidebar .logout-btn .logout-icon {
+    font-size: 0.9rem;
+}
+
