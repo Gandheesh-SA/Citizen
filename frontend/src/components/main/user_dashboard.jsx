@@ -11,6 +11,8 @@ import {
   MdFeedback,
   MdViewAgenda,
 } from "react-icons/md";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import "../../styles/user_dashboard.css";
 import { Bar, Line, Pie, Doughnut } from "react-chartjs-2";
@@ -99,6 +101,9 @@ const handleFbImage = (e) => {
   setFbImage(file);
   setFbImagePreview(URL.createObjectURL(file));
 };
+
+
+
 const handleSubmitNewFeedback = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -383,7 +388,98 @@ const leaveCommunity = async (id) => {
       return { ...prev, volunteeringTypes: list };
     });
   };
+const exportPDF = (title, summaryText, columns, rows) => {
+  try {
+    const doc = new jsPDF("p", "pt", "a4");
+    const left = 40;
+    let y = 40;
 
+    doc.setFontSize(18);
+    doc.text(title, left, y);
+    y += 20;
+
+    if (summaryText) {
+      doc.setFontSize(11);
+      // allow long text wrap
+      const split = doc.splitTextToSize(summaryText, 520);
+      doc.text(split, left, y);
+      y += split.length * 12 + 12;
+    }
+
+    autoTable(doc, {
+      startY: y,
+      head: [columns],
+      body: rows,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [0, 91, 95] },
+    });
+
+    doc.save(`${title}.pdf`);
+  } catch (err) {
+    console.error("PDF export error:", err);
+    alert("Failed to generate PDF. Check console for details.");
+  }
+};
+
+/* -----------------------
+   Summary generators
+   ----------------------- */
+const getComplaintSummaryText = (complaints) => {
+  if (!Array.isArray(complaints) || complaints.length === 0)
+    return "No complaints have been filed yet.";
+
+  const total = complaints.length;
+  const pending = complaints.filter(c => (c.status || "").toLowerCase() === "pending").length;
+  const inProgress = complaints.filter(c => (c.status || "").toLowerCase() === "in progress").length;
+  const resolved = complaints.filter(c => (c.status || "").toLowerCase() === "resolved").length;
+
+  const catCount = {};
+  complaints.forEach(c => {
+    const k = c.category || "Uncategorized";
+    catCount[k] = (catCount[k] || 0) + 1;
+  });
+  const topCategory = Object.entries(catCount).sort((a,b) => b[1]-a[1])[0]?.[0] || "N/A";
+
+  const rate = total ? ((resolved / total) * 100).toFixed(1) : "0";
+
+  return `Total complaints: ${total}
+Resolved: ${resolved} · Pending: ${pending} · In Progress: ${inProgress}
+Most common category: ${topCategory}
+Resolution rate: ${rate}%`;
+};
+
+const getFeedbackSummaryText = (feedbacks) => {
+  if (!Array.isArray(feedbacks) || feedbacks.length === 0) return "No feedback records available.";
+
+  const total = feedbacks.length;
+  const avgRating = (feedbacks.reduce((acc, f) => acc + (Number(f.rating) || 0), 0) / total).toFixed(1);
+
+  const resolvedFeedbacks = feedbacks.filter(f => f.resolved).length;
+
+  const moods = {};
+  feedbacks.forEach(f => { const m = f.satisfaction || "unknown"; moods[m] = (moods[m] || 0) + 1; });
+  const topMood = Object.entries(moods).sort((a,b) => b[1]-a[1])[0]?.[0] || "N/A";
+
+  const quality = avgRating >= 4 ? "high" : avgRating >= 3 ? "moderate" : "needs improvement";
+
+  return `Total feedback entries: ${total}
+Average rating: ${avgRating} / 5
+Resolved feedbacks: ${resolvedFeedbacks}
+Most common mood: ${topMood}
+Overall service quality: ${quality}`;
+};
+
+const getAnnouncementSummaryText = (announcements) => {
+  if (!Array.isArray(announcements) || announcements.length === 0) return "You have not created any announcements.";
+
+  const total = announcements.length;
+  const catCount = {};
+  announcements.forEach(a => { const k = a.category || "Uncategorized"; catCount[k] = (catCount[k] || 0) + 1; });
+  const topCategory = Object.entries(catCount).sort((a,b)=>b[1]-a[1])[0]?.[0] || "N/A";
+
+  return `Total announcements: ${total}
+Most frequent category: ${topCategory}`;
+};
   const handleSaveProfile = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -1077,8 +1173,20 @@ useEffect(() => {
       Download a complete summary of all complaints you have raised.
     </p>
     <div className="report-actions">
-      <button className="btn primary">Generate</button>
-      <button className="btn secondary">Preview</button>
+        <button className="btn primary" onClick={() => {
+    const columns = ["Complaint ID", "Title", "Category", "Status", "Date"];
+    const rows = (complaints || []).map((c) => [
+      c.complaintId || "N/A",
+      c.title || "—",
+      c.category || "—",
+      c.status || "—",
+      c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—",
+    ]);
+
+    const summary = getComplaintSummaryText(complaints || []);
+    exportPDF("Complaint Summary Report", summary, columns, rows);
+  }}>Generate</button>
+      
     </div>
   </div>
 
@@ -1088,8 +1196,20 @@ useEffect(() => {
       View trends and ratings you provided for resolved complaints.
     </p>
     <div className="report-actions">
-      <button className="btn primary">Generate</button>
-      <button className="btn secondary">Preview</button>
+      <button className="btn primary" onClick={() => {
+    const columns = ["Complaint ID", "Rating", "Satisfaction", "Resolved", "Date"];
+    const rows = (feedbacks || []).map((f) => [
+      f.complaint?.complaintId || "N/A",
+      f.rating ?? "—",
+      f.satisfaction ?? "—",
+      f.resolved ? "Yes" : "No",
+      f.createdAt ? new Date(f.createdAt).toLocaleDateString() : "—",
+    ]);
+
+    const summary = getFeedbackSummaryText(feedbacks || []);
+    exportPDF("Feedback Analysis Report", summary, columns, rows);
+  }}>Generate</button>
+      
     </div>
   </div>
 
@@ -1099,8 +1219,19 @@ useEffect(() => {
       Export your announcements history with date, category & more.
     </p>
     <div className="report-actions">
-      <button className="btn primary">Generate</button>
-      <button className="btn secondary">Preview</button>
+      <button className="btn primary" onClick={() => {
+    const columns = ["Title", "Category", "Message", "Date"];
+    const rows = (myAnnouncements || []).map((a) => [
+      a.title || "—",
+      a.category || "—",
+      (a.message || "").replace(/\n/g, " ").slice(0, 200),
+      a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "—",
+    ]);
+
+    const summary = getAnnouncementSummaryText(myAnnouncements || []);
+    exportPDF("My Announcements Report", summary, columns, rows);
+  }}>Generate</button>
+      
     </div>
   </div>
 

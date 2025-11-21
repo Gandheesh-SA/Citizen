@@ -1,4 +1,4 @@
-// controllers/interactionController.js
+
 const Interaction = require("../models/interaction");
 const mongoose = require("mongoose");
 
